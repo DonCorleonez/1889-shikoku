@@ -5,6 +5,8 @@ open-source engine behind [18xx.games](https://18xx.games). It adds
 **computer players** for **Shikoku 1889**, so you can start a hotseat game on
 your own and let Easy, Normal or Hard bots fill the other seats.
 
+To put it on your own site, see **[DEPLOY.md](DEPLOY.md)**.
+
 See **[AI_PLAYERS.md](AI_PLAYERS.md)** for how to play, how each difficulty
 level plays and how strong it is, and how to run the site locally.
 

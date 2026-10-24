@@ -1,0 +1,33 @@
+# Self-hosted build: one image for the Ruby app and one nginx image that
+# serves the precompiled assets and proxies everything else to the app.
+# Used by docker-compose.selfhost.yml; see DEPLOY.md.
+
+# ---- app: Ruby server with production assets compiled in ----
+FROM ruby:3.4 AS app
+
+ENV RACK_ENV=production \
+    OPAL_PREFORK_DISABLE=true
+
+RUN apt-get update && apt-get install -y --no-install-recommends libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# esbuild minifies the compiled JavaScript
+RUN curl -fsSL https://registry.npmjs.org/esbuild-linux-64/-/esbuild-linux-64-0.14.36.tgz | tar xz \
+    && mv package/bin/esbuild /usr/local/bin/ && rm -rf package
+
+WORKDIR /18xx
+COPY Gemfile Gemfile.lock* ./
+RUN bundle config set without 'test development' && bundle install --jobs 4
+
+COPY . .
+ARG GIT_REV=selfhost
+RUN GIT_REV=$GIT_REV bundle exec rake selfhost_precompile
+
+EXPOSE 9292
+CMD ["bash", "-c", "bundle exec rake prod_up && bundle exec unicorn -c config/unicorn.rb"]
+
+# ---- web: nginx with the static files baked in ----
+FROM nginx:stable AS web
+RUN rm -f /etc/nginx/conf.d/default.conf
+COPY nginx/selfhost.conf /etc/nginx/conf.d/shikoku.conf
+COPY --from=app /18xx/public /public

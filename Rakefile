@@ -128,6 +128,19 @@ task :precompile do
   assets.clean_intermediate_output_files
 end
 
+desc 'Precompile assets for a self-hosted copy (no pinned build, no git needed)'
+task :selfhost_precompile do
+  require_relative 'lib/assets'
+  assets = Assets.new(cache: false, compress: true, gzip: true)
+  assets.combine(:all)
+  File.write(Assets::OUTPUT_BASE + '/assets/version.json', JSON.dump(
+    hash: ENV.fetch('GIT_REV', 'selfhost'),
+    url: 'https://github.com/DonCorleonez/1889-shikoku',
+    version_epochtime: Time.now.strftime('%s'),
+  ))
+  assets.clean_intermediate_output_files
+end
+
 desc 'Profile loading data'
 task 'stackprof', [:json] do |_task, args|
   require 'stackprof'

@@ -1,0 +1,65 @@
+# Self-hosted 1889 Shikoku (hotseat with AI players) for one personal site.
+#   cp .env.selfhost.example .env   # then set POSTGRES_PASSWORD
+#   docker compose -f docker-compose.selfhost.yml up -d --build
+# The site is then on http://127.0.0.1:${WEB_PORT:-8189}; a Cloudflare Tunnel
+# publishes it on https://shikoku.doncorleonez.my.id. See DEPLOY.md.
+name: shikoku
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.selfhost
+      target: web
+    image: shikoku_web
+    ports:
+      - "127.0.0.1:${WEB_PORT:-8189}:80"
+    depends_on:
+      - rack
+    restart: unless-stopped
+
+  rack:
+    build:
+      context: .
+      dockerfile: Dockerfile.selfhost
+      target: app
+    image: shikoku_app
+    environment:
+      RACK_ENV: production
+      DATABASE_URL: postgres://${POSTGRES_USER:-shikoku}:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}@db/${POSTGRES_DB:-shikoku}
+      UNICORN_WORKERS: ${UNICORN_WORKERS:-2}
+      OPAL_PREFORK_DISABLE: "true"
+      # Accounts need a Turnstile widget and email sending; hotseat play needs
+      # neither. The defaults are Cloudflare's test keys. See DEPLOY.md.
+      TURNSTILE_SITEKEY: ${TURNSTILE_SITEKEY:-1x00000000000000000000AA}
+      TURNSTILE_SECRET: ${TURNSTILE_SECRET:-1x0000000000000000000000000000000AA}
+      TURNSTILE_HOSTS: ${TURNSTILE_HOSTS:-shikoku.doncorleonez.my.id}
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    restart: unless-stopped
+
+  db:
+    image: postgres:14
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-shikoku}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: ${POSTGRES_DB:-shikoku}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-shikoku} -d ${POSTGRES_DB:-shikoku}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+  # The app connects to a host named "redis"
+  redis:
+    image: redis:7
+    restart: unless-stopped
+
+volumes:
+  pgdata:
