@@ -1,0 +1,40 @@
+services:
+  rack:
+    build:
+      context: .
+    depends_on:
+      - db
+      - redis
+    logging:
+      options:
+        max-size: "10m"
+
+  queue:
+    build:
+      context: .
+    depends_on:
+      - db
+      - redis
+    logging:
+      options:
+        max-size: "10m"
+
+  redis:
+    build:
+      context: ./redis/
+    ports:
+      - 127.0.0.1:6380:6379
+    logging:
+      options:
+        max-size: "10m"
+
+  db:
+    build:
+      context: ./db/
+    volumes:
+      - ./db/data:/var/lib/postgresql/data:z
+    ports:
+      - 127.0.0.1:5433:5432
+    logging:
+      options:
+        max-size: "10m"

@@ -1,0 +1,75 @@
+x-rack: &rack
+  command: bash -c "bundle exec rake prod_up && bundle exec unicorn -c config/unicorn.rb"
+  image: 18xx_rack:prod
+  environment:
+    RACK_ENV: production
+    DATABASE_URL: $DATABASE_URL
+    ELASTIC_KEY: $ELASTIC_KEY
+    NEW_RELIC_LICENSE_KEY: $NEW_RELIC_LICENSE_KEY
+    NEW_RELIC_DISABLE_MIDDLEWARE_INSTRUMENTATION: 1
+    SLACK_WEBHOOK_URL: $SLACK_WEBHOOK_URL
+    TURNSTILE_SECRET: $TURNSTILE_SECRET
+    # No RUBYOPT: --yjit. YJIT pins the method entries it compiles in its root
+    # set, so any method defined at runtime per object -- define_method or
+    # singleton_class in an initializer -- keeps that object alive for the life
+    # of the worker. That leaked every replayed game (~6.5MB each) until the
+    # memory killer shot the worker, taking its long-poll connections with it.
+    # The two offenders are fixed, but YJIT only bought ~3% on engine replay and
+    # this is too easy to reintroduce, so it stays off.
+    PORT: 9292
+    OPAL_PREFORK_DISABLE: "true"
+  restart: always
+  build:
+    args:
+      RACK_ENV: production
+    context: .
+  volumes:
+    - ./public:/18xx/public
+  depends_on:
+    - db
+    - redis
+  logging:
+    options:
+      max-size: "50m"
+
+services:
+  rack:
+    <<: *rack
+
+  rack_backup:
+    <<: *rack
+
+  queue:
+    <<: *rack
+    command: bundle exec ruby queue.rb
+
+  redis:
+    restart: always
+
+  db:
+    environment:
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - POSTGRES_DB
+    restart: always
+
+  nginx:
+    restart: always
+    build:
+      context: ./nginx/
+    ports:
+      - 80:80
+      - 443:443
+      - 127.0.0.1:8080:8080
+    volumes:
+      - ./public:/public
+      - /etc/letsencrypt:/etc/letsencrypt
+      # Access log on a stable host path so the host can watch it (the default
+      # log only goes to the container's stdout, whose path changes each deploy).
+      - /var/log/18xx-nginx:/var/log/18xx-nginx
+    depends_on:
+      - rack
+      - rack_backup
+    logging:
+      options:
+        max-size: "300m"

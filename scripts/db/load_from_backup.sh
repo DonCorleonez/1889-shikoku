@@ -1,0 +1,34 @@
+#!/bin/bash
+set -e
+
+# Loads a db.backup.gz file into your actively running local server. Overwrites
+# existing DB data.
+
+if [ $(hostname) = "18xxgames" ]; then
+    echo "You probably don't want to run this on prod."
+    exit 1
+fi
+
+docker compose exec rack echo "is this thing on?"
+
+. scripts/db/load_env.sh
+
+if [ -z "${1}" ]; then
+    DB_FILE=db.backup.gz
+else
+    DB_FILE="${1}"
+fi
+
+set -x
+
+# unzip
+gunzip --keep --force ${DB_FILE}
+TMP_DB_FILE=${DB_FILE/.gz/}
+
+# restore
+docker compose exec rack rake dev_bounce
+DB_CONTAINER_NAME=$(docker ps --filter name="db.?1" --format '{{.Names}}')
+docker exec -i ${DB_CONTAINER_NAME} pg_restore --clean --username ${DB_USER} --dbname ${DB_NAME} --format tar < ${TMP_DB_FILE}
+
+# remove uncompressed backup
+rm -v ${TMP_DB_FILE}

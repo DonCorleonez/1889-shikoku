@@ -1,0 +1,45 @@
+/.env*
+/.yardoc
+/_yardoc/
+/coverage/
+/doc/
+/pkg/
+/spec/reports/
+/tmp/
+/build/
+/vendor/
+/public/assets/*
+/public/pinned/*
+
+.tags
+.DS_STORE
+*.swp
+/Gemfile.lock
+
+# rspec failure tracking
+.rspec_status
+
+/log/
+/db/data/
+
+docker-compose.override.yml
+
+.ruby-version
+
+db.backup*
+validate*.json
+migrate*.json
+validate/
+.pgpass
+
+# RubyMine configfiles
+.idea
+
+.vscode
+
+.rerun
+
+# 1864 source material - copyrighted TraXX PDFs, not redistributable
+MAINLINE 1864 Forty-Niner Rules.pdf
+/map/
+/cards/

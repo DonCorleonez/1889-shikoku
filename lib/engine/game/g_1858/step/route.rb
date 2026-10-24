@@ -1,0 +1,48 @@
+# frozen_string_literal: true
+
+require_relative '../../../step/route'
+
+module Engine
+  module Game
+    module G1858
+      module Step
+        class Route < Engine::Step::Route
+          def actions(entity)
+            return [] unless entity.corporation?
+            return [] if runnable_trains(entity).empty?
+
+            ACTIONS
+          end
+
+          def process_run_routes(action)
+            super
+            log_company_revenue(action.entity)
+          end
+
+          def log_company_revenue(corporation)
+            corporation.companies.each do |company|
+              next unless @game.private_railway?(company)
+
+              revenue_str = @game.format_revenue_currency(company.revenue)
+              @log << "#{corporation.name} receives #{revenue_str} revenue " \
+                      "from private railway #{company.name}"
+            end
+          end
+
+          def log_skip(entity)
+            return if entity.minor?
+
+            super
+            log_company_revenue(entity)
+          end
+
+          private
+
+          def runnable_trains(entity)
+            entity.runnable_trains
+          end
+        end
+      end
+    end
+  end
+end

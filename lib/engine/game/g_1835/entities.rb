@@ -1,0 +1,392 @@
+# frozen_string_literal: true
+
+module Engine
+  module Game
+    module G1835
+      module Entities
+        COMPANIES = [
+          {
+            name: 'Nürnberg-Fürth',
+            sym: 'NF',
+            value: 100,
+            revenue: 5,
+            desc: 'The owner of the Nürnberg-Fürth receives in addition a free share in the Bayerische. They may, if director '\
+                  'of a share company, lay a station marker of that company onto the Nürnberg-Fürth space during an operating '\
+                  'round. This can be in addition to the normal placing of a station marker and is free. A connection with the '\
+                  'track of the company is not required. This action closes the Nürnberg-Fürth.',
+            abilities: [{ type: 'shares', shares: 'BY_2' }, {
+              type: 'token',
+              when: 'owning_player_track',
+              owner_type: 'player',
+              hexes: ['L14'],
+              price: 0,
+              teleport_price: 0,
+              count: 1,
+              extra_action: true,
+              from_owner: true,
+            }],
+            color: :dodgerblue,
+            auction_row: 0,
+          },
+          {
+            name: '1',
+            sym: '1',
+            value: 80,
+            revenue: 0,
+            desc: '',
+            auction_row: 1,
+            color: '#444444',
+          },
+          {
+            name: 'Leipzig-Dresdner Bahn',
+            sym: 'LD',
+            value: 190,
+            revenue: 20,
+            desc: 'The owner of the LD private company immediately receives the President\'s certificate of the '\
+                  'SX without further payment. When the SX runs its first train the private company is closed.',
+            abilities: [{ type: 'shares', shares: 'SX_0' },
+                        { type: 'no_buy' },
+                        { type: 'close', when: 'bought_train', corporation: 'SX' }],
+            color: :red,
+            auction_row: 1,
+          },
+          {
+            name: '2',
+            sym: '2',
+            value: 170,
+            revenue: 0,
+            desc: '',
+            auction_row: 1,
+            color: '#444444',
+          },
+          {
+            name: '3',
+            sym: '3',
+            value: 80,
+            revenue: 0,
+            desc: '',
+            auction_row: 2,
+            color: '#444444',
+          },
+          {
+            name: '4',
+            sym: '4',
+            value: 160,
+            revenue: 0,
+            desc: '',
+            auction_row: 2,
+            color: '#444444',
+          },
+          {
+            name: 'Bayern Director',
+            sym: 'BY_D',
+            value: 184,
+            revenue: 0,
+            desc: '',
+            abilities: [
+              {
+                type: 'shares',
+                shares: 'BY_0',
+              },
+            ],
+            auction_row: 2,
+            color: :dodgerblue,
+          },
+          {
+            name: 'Braunschweigische Bahn',
+            sym: 'BB',
+            value: 130,
+            revenue: 25,
+            desc: 'The Braunschweigische can, once the Prussian Railway has been formed, be converted into a 10% share '\
+                  'certificate of the Prussian Railway. This action closes it. This exchange will be enforced once the '\
+                  'first 5T is purchased by any corporation.',
+            abilities: [
+              {
+                type: 'close',
+                on_phase: 'never',
+              },
+            ],
+            auction_row: 2,
+            color: '#444444',
+          },
+          {
+            name: 'Hannoversche Bahn',
+            sym: 'HB',
+            value: 160,
+            revenue: 30,
+            desc: 'The Hannoversche can, once the Prussian Railway has been formed, be converted into a 10% share certificate '\
+                  'of the Prussian Railway. This action closes it. This exchange will be enforced once the first 5T is '\
+                  'purchased by any corporation.',
+            abilities: [
+              {
+                type: 'close',
+                on_phase: 'never',
+              },
+            ],
+            auction_row: 3,
+            color: '#444444',
+          },
+          {
+            name: '5',
+            sym: '5',
+            value: 80,
+            revenue: 0,
+            desc: '',
+            auction_row: 3,
+            color: '#444444',
+          },
+          {
+            name: '6',
+            sym: '6',
+            value: 80,
+            revenue: 0,
+            desc: '',
+            auction_row: 3,
+            color: '#444444',
+          },
+          {
+            name: 'Ostbayrische Bahn',
+            sym: 'OBB',
+            value: 120,
+            revenue: 10,
+            desc: 'The owner of the Ostbayern receives in addition a free share in the Bayerische. They may, if director of a '\
+                  'share company, during an operating round, lay a tile onto the hex southeast of Nürnberg (M15), or the hex '\
+                  'to the right of this (M17). This tile lay is in addition to a normal lay and is free. In a later operating '\
+                  'round they may lay a tile onto the other of these two hexes. The Ostbayern is closed when both hexes have'\
+                  'been built on. A connection to any tracks already existing is not required.',
+            abilities: [
+              {
+                type: 'tile_lay',
+                owner_type: 'player',
+                hexes: %w[M15 M17],
+                tiles: %w[3 4 7 8 9 58],
+                when: 'owning_player_track',
+                count: 2,
+                connect: false,
+              },
+              { type: 'shares', shares: 'BY_1' },
+            ],
+            color: :dodgerblue,
+            auction_row: 3,
+          },
+          {
+            name: 'Pfalzbahnen',
+            sym: 'PB',
+            value: 150,
+            revenue: 15,
+            desc: 'The owner of the Pfalzbahnen receives in addition a free share in the Bayerische. They may, if Director of '\
+                  'a share company, during an operating round, lay a tile onto the Mannheim/Ludwigshafen hex. This lay is in '\
+                  'addition to a normal lay and is free. A connection with the company home base is not required. If this '\
+                  'ability is used and the Baden has already been floated, the Baden immediately chooses in which slot its '\
+                  'home token goes. They may also as Director of a share company, lay a station marker onto this hex if the '\
+                  'Baden home token has already been placed. This too is free. When both these actions have been carried out, '\
+                  'the Pfalzbahnen closes. If the Owner of the Pfalzbahnen is also the director of the Badische railway, they '\
+                  'may use this feature to gain two tile lays in the first operating round of this railway.',
+            abilities: [
+              {
+                type: 'tile_lay',
+                owner_type: 'player',
+                hexes: ['L6'],
+                when: 'owning_player_track',
+                tiles: %w[210 211 212 213 214 215],
+              },
+              { type: 'shares', shares: 'BY_3' },
+              {
+                type: 'token',
+                when: 'owning_player_track',
+                owner_type: 'corporation',
+                hexes: ['L6'],
+                city: 3,
+                price: 0,
+                teleport_price: 0,
+                count: 1,
+                extra_action: true,
+              },
+            ],
+            color: :dodgerblue,
+            auction_row: 3,
+          },
+        ].freeze
+
+        CORPORATIONS = [
+          {
+            sym: 'BY',
+            name: 'Bayrische Eisenbahn',
+            type: 'major',
+            logo: '1835/BY',
+            simple_logo: '1835/BY.alt',
+            tokens: [0, 20, 20, 20, 20],
+            float_percent: 50,
+            max_ownership_percent: 100,
+            shares: [20, 10, 10, 10, 10, 10, 10, 10, 10],
+            coordinates: 'O15',
+            color: :turquoise,
+          },
+          {
+            sym: 'SX',
+            name: 'Sächsische Eisenbahn',
+            type: 'major',
+            logo: '1835/SX',
+            simple_logo: '1835/SX.alt',
+            tokens: [0, 20, 20],
+            float_percent: 50,
+            max_ownership_percent: 100,
+            shares: [20, 10, 10, 10, 10, 10, 10, 10, 10],
+            coordinates: 'H16',
+            color: '#d81e3e',
+          },
+          {
+            sym: 'BA',
+            name: 'Badische Eisenbahn',
+            type: 'major',
+            logo: '1835/BA',
+            simple_logo: '1835/BA.alt',
+            tokens: [0, 20],
+            float_percent: 50,
+            max_ownership_percent: 100,
+            shares: [20, 10, 10, 10, 10, 10, 10, 20],
+            coordinates: 'L6',
+            color: '#7b352a',
+          },
+          {
+            sym: 'WT',
+            name: 'Württembergische Eisenbahn',
+            type: 'major',
+            logo: '1835/WT',
+            simple_logo: '1835/WT.alt',
+            tokens: [0, 20],
+            float_percent: 50,
+            max_ownership_percent: 100,
+            shares: [20, 10, 10, 10, 10, 10, 10, 20],
+            coordinates: 'M9',
+            color: :yellow,
+          },
+          {
+            sym: 'HE',
+            name: 'Hessische Eisenbahn',
+            type: 'major',
+            logo: '1835/HE',
+            simple_logo: '1835/HE.alt',
+            tokens: [0, 20],
+            float_percent: 50,
+            max_ownership_percent: 100,
+            shares: [20, 10, 10, 10, 10, 10, 10, 20],
+            coordinates: 'J8',
+            color: :green,
+          },
+          {
+            sym: 'PR',
+            name: 'Preußische Eisenbahn',
+            type: 'prussian',
+            logo: '1835/PR',
+            simple_logo: '1835/PR.alt',
+            tokens: [0, 20], # tokens to exchange for minors are generated on the fly
+            floatable: false,
+            max_ownership_percent: 100,
+            shares: [10, 10, 10, 10, 10, 10, 10, 10, 5, 5, 5, 5],
+            coordinates: 'E19',
+            color: '#37383a',
+          },
+          {
+            sym: 'MS',
+            name: 'Eisenbahn Mecklenburg Schwerin',
+            type: 'major',
+            logo: '1835/MS',
+            simple_logo: '1835/MS.alt',
+            tokens: [0, 20],
+            percent: 10,
+            float_percent: 60,
+            max_ownership_percent: 100,
+            shares: [20, 20, 20, 10, 10, 10, 10],
+            price_percent: 20,
+            fraction_shares: false,
+            coordinates: 'C13',
+            color: :violet,
+          },
+          {
+            sym: 'OL',
+            name: 'Oldenburgische Eisenbahn',
+            type: 'major',
+            logo: '1835/OL',
+            simple_logo: '1835/OL.alt',
+            tokens: [0, 20],
+            percent: 10,
+            float_percent: 60,
+            max_ownership_percent: 100,
+            shares: [20, 20, 20, 10, 10, 10, 10],
+            price_percent: 20,
+            fraction_shares: false,
+            coordinates: 'D6',
+            color: '#6e6966',
+          },
+        ].freeze
+
+        MINORS = [
+          {
+            sym: '1',
+            name: 'Bergisch Märkische Bahn',
+            type: 'minor',
+            logo: '1835/P1',
+            simple_logo: '1835/PR.alt',
+            tokens: [0],
+            coordinates: 'H2',
+            color: '#37383a',
+          },
+          {
+            sym: '2',
+            name: 'Berlin Potsdamer Bahn',
+            type: 'minor',
+            logo: '1835/P2',
+            simple_logo: '1835/PR.alt',
+            tokens: [0],
+            coordinates: 'E19',
+            city: 0,
+            color: '#37383a',
+          },
+          {
+            sym: '3',
+            name: 'Magdeburger-Bahn',
+            type: 'minor',
+            logo: '1835/P3',
+            simple_logo: '1835/PR.alt',
+            tokens: [0],
+            coordinates: 'F14',
+            color: '#37383a',
+          },
+          {
+            sym: '4',
+            name: 'Köln-Mindener Bahn',
+            type: 'minor',
+            logo: '1835/P4',
+            simple_logo: '1835/PR.alt',
+            tokens: [0],
+            coordinates: 'G5',
+            color: '#37383a',
+          },
+          {
+            sym: '5',
+            name: 'Berlin Stettiner Bahn',
+            type: 'minor',
+            logo: '1835/P5',
+            simple_logo: '1835/PR.alt',
+            tokens: [0],
+            coordinates: 'E19',
+            city: 1,
+            color: '#37383a',
+          },
+          {
+            sym: '6',
+            name: 'Altona Kiel Bahn',
+            type: 'minor',
+            logo: '1835/P6',
+            simple_logo: '1835/PR.alt',
+            tokens: [0],
+            coordinates: 'C11',
+            city: 1,
+            color: '#37383a',
+          },
+        ].freeze
+      end
+    end
+  end
+end
