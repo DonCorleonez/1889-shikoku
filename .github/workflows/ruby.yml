@@ -22,12 +22,18 @@ jobs:
       run: |
         gem install bundler
         bundle install --jobs 4 --retry 3
+    # RuboCop still fails the job on the baseline offenses, but the build and
+    # specs run anyway so a lint failure does not hide test results.
     - name: RuboCop
+      id: rubocop
       run: |
         bundle exec rake rubocop
     - name: Opal
+      id: opal
+      if: success() || steps.rubocop.outcome == 'failure'
       run: |
         bundle exec rake compile_all
     - name: RSpec
+      if: steps.opal.outcome == 'success'
       run: |
         bundle exec rake spec_parallel
