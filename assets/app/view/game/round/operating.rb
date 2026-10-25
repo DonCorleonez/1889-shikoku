@@ -29,6 +29,7 @@ module View
     module Round
       class Operating < Snabberb::Component
         needs :game
+        needs :embedded_layout, default: false
         needs :selected_company, default: nil, store: true
 
         def render
@@ -136,7 +137,7 @@ module View
           hide_map = aquire_company_action || corporate_stock_round
 
           left << h(MapLegend, game: @game) if @game.show_map_legend? && @game.show_map_legend_on_left?
-          right << h(Map, game: @game) unless hide_map
+          right << h(Map, game: @game) if !hide_map && !@embedded_layout
           if @current_actions.include?('buy_company')
             on_left = @step.respond_to?(:show_companies_on_left?) && @step.show_companies_on_left?
             (on_left ? left : right) << h(:div, div_props, [h(BuyCompanies, limit_width: true)])

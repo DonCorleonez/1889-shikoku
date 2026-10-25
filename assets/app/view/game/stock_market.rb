@@ -14,6 +14,7 @@ module View
       needs :game
       needs :user, default: nil, store: true
       needs :show_bank, default: true
+      needs :embedded_layout, default: false
       needs :explain_colors, default: false
 
       COLOR_MAP = {
@@ -400,7 +401,9 @@ module View
 
       def grid_2d
         # Need to peek at row below to know if sitting on ledge.
-        @game.stock_market.market.push([]).each_cons(2).each_with_index.map do |rows, row_i|
+        # Embedded one-screen view must not mutate the engine market on every render.
+        market_rows = @embedded_layout ? (@game.stock_market.market + [[]]) : @game.stock_market.market.push([])
+        market_rows.each_cons(2).with_index.map do |rows, row_i|
           row_prices, next_row = rows
           first_price = true
 
