@@ -2,7 +2,7 @@ name: Ruby
 
 on:
   push:
-    branches: [ master ]
+    branches: [ main, master, 'debloat/**', 'ui/**' ]
   pull_request:
     branches: [ '*' ]
 
