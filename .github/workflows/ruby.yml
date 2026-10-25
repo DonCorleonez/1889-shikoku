@@ -34,6 +34,6 @@ jobs:
       run: |
         bundle exec rake compile_all
     - name: RSpec
-      if: steps.opal.outcome == 'success'
+      if: ${{ !cancelled() && steps.opal.outcome == 'success' }}
       run: |
         bundle exec rake spec_parallel
