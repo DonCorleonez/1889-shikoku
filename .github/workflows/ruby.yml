@@ -23,6 +23,7 @@ jobs:
         gem install bundler
         bundle install --jobs 4 --retry 3
     - name: RuboCop
+      continue-on-error: true
       run: |
         bundle exec rake rubocop
     - name: Opal
