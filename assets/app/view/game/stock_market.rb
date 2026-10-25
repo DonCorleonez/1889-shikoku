@@ -403,7 +403,7 @@ module View
         # Need to peek at row below to know if sitting on ledge.
         # Embedded one-screen view must not mutate the engine market on every render.
         market_rows = @embedded_layout ? (@game.stock_market.market + [[]]) : @game.stock_market.market.push([])
-        market_rows.each_cons(2).each_with_index.map do |rows, row_i|
+        market_rows.each_cons(2).with_index.map do |rows, row_i|
           row_prices, next_row = rows
           first_price = true
 

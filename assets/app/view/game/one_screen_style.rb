@@ -4,7 +4,7 @@
 # Inlined (not under public/assets, which is git-ignored build output).
 module View
   module Game
-    ONE_SCREEN_STYLE = <<~'CSS'
+    ONE_SCREEN_STYLE = <<~CSS
       /* 1889 Shikoku, opt-in workspace (?onescreen=1). Scoped to #shikoku-one-screen. */
       #shikoku-one-screen {
         --forest: #133f33; --forest-2: #1b5546; --parchment: #f6f1e6;
@@ -34,8 +34,9 @@ module View
       #shikoku-one-screen .os-table th {background:#eee7da;position:sticky;top:0;z-index:1;}
       #shikoku-one-screen .os-table tbody tr:nth-child(2n) {background:#f4efe6;}
       #shikoku-one-screen .os-corp-chip {display:inline-block; min-width:25px; border-radius:3px; padding:3px; text-align:center; font-weight:bold;}
-      #shikoku-one-screen .os-map-card .os-card-body {display:flex;align-items:center;justify-content:center; background:#e4ece7;}
-      #shikoku-one-screen .os-map-card .os-card-body>div {max-width:none;}
+      /* margin:auto (not flex centering) keeps an oversized map scrollable to its top-left edge. */
+      #shikoku-one-screen .os-map-card .os-card-body {display:flex; background:#e4ece7;}
+      #shikoku-one-screen .os-map-card .os-card-body>div {max-width:none;margin:auto;}
       #shikoku-one-screen .os-action-card .os-card-body {padding:10px;}
       #shikoku-one-screen .os-current-round {padding:7px;border-radius:4px;background:#ebede3;color:var(--forest);font-weight:600;}
       #shikoku-one-screen .os-action-form {margin-top:10px; min-height:130px;}

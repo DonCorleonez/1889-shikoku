@@ -16,9 +16,10 @@ module View
         h('nav.os-timeline', { attrs: { 'aria-label': 'Game round progress' } },
           items.map do |item|
             status = item[:status]
-            h('span.os-round.os-round--' + status, {
-                attrs: { title: item[:title] || item[:label], 'aria-current': status == 'current' ? 'step' : nil },
-              }, [
+            attrs = { title: item[:title] || item[:label] }
+            # snabbdom writes a nil attribute as the string "null"; only set it when current.
+            attrs['aria-current'] = 'step' if status == 'current'
+            h("span.os-round.os-round--#{status}", { attrs: attrs }, [
                 h('span.os-round-indicator', status == 'complete' ? '✓' : '•'),
                 h(:span, item[:label]),
                 status == 'projected' ? h('small.os-round-projected', 'Projected') : nil,
@@ -38,8 +39,7 @@ module View
           next if seen[key]
 
           seen[key] = true
-          result << { label: round_name(info.round_name, info.turn, info.round_no),
-                      status: 'complete' }
+          result << { label: round_name(info.round_name, info.turn, info.round_no), status: 'complete' }
         end
       end
 
@@ -58,7 +58,7 @@ module View
                 else
                   @game.phase.operating_rounds.to_i # estimate for NEXT set
                 end
-        count = [[count, 1].max, 3].min
+        count = count.clamp(1, 3)
         result = []
         if type == 'OR'
           ((round.round_num + 1)..count).each do |num|

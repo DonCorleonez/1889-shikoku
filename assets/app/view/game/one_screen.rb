@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # backtick_javascript: true
 
 require 'view/share_calculation'
@@ -30,24 +31,24 @@ module View
           h(OneScreenRoundTracker, game: @game),
           h('main.os-workspace', [
             h('section.os-financial-pane', [
-              card('Players', render_players),
-              card('Corporations', render_corporations),
+              card('Players', [render_players]),
+              card('Corporations', [render_corporations]),
             ]),
             card('Shikoku Board', [h(Map, game: @game, opacity: 1.0,
                                           tile_selector: @tile_selector)], 'os-map-card'),
             card('Current Action', [
-              h('div.os-current-round', @round_label),
-              h('div.os-action-form', @action_panel),
+              h('div.os-current-round', [@round_label]),
+              h('div.os-action-form', [@action_panel]),
               h('div.os-tools', @controls),
             ], 'os-action-card'),
           ]),
           h('div.os-data-strip', [
-            card(market_heading, [h('div.os-stock-zoom',
-                                    h(StockMarket, game: @game, show_bank: false, embedded_layout: true))], 'os-market-card'),
+            card(market_heading, [h('div.os-stock-zoom', [
+                                    h(StockMarket, game: @game, show_bank: false, embedded_layout: true),
+                                  ])], 'os-market-card'),
             card('Bank · Trains · Phases', render_bank_and_phases),
-            card('Tile Manifest', h(TileManifest, game: @game,
-                                                 tile_selector: @tile_selector), 'os-tile-card'),
-            card('Game Log', @game_log, 'os-log-card'),
+            card('Tile Manifest', [h(TileManifest, game: @game, tile_selector: @tile_selector)], 'os-tile-card'),
+            card('Game Log', [@game_log], 'os-log-card'),
           ]),
         ])
       end
@@ -60,15 +61,20 @@ module View
         end
         h('div.os-market-heading', [
           h(:span, 'Stock Market'),
-          h(:button, { attrs: { type: 'button', title: 'Expand or collapse the market' },
-                       on: { click: expand } }, 'Expand / Close'),
+          h(:button, {
+              attrs: { type: 'button', title: 'Expand or collapse the market' },
+              on: { click: expand },
+            }, 'Expand / Close'),
         ])
       end
 
+      # Snabberb's h reads a lone VNode in the props slot as a hash, so title
+      # (a String or a VNode) and body (an Array of children) go in as arrays.
       def card(title, body, custom_class = '')
         selector = custom_class.empty? ? 'section.os-card' : "section.os-card.#{custom_class}"
-        h(selector, (custom_class.include?('os-market-card') ? { attrs: { id: 'os-market-dock' } } : {}), [
-          h('header.os-card-heading', title),
+        props = custom_class.include?('os-market-card') ? { attrs: { id: 'os-market-dock' } } : {}
+        h(selector, props, [
+          h('header.os-card-heading', [title]),
           h('div.os-card-body', body),
         ])
       end
@@ -85,9 +91,9 @@ module View
       end
 
       def render_players
-        cols = ['Player', 'Cash', 'Value', 'Liquidity', 'Shares', 'Companies', 'Certs', 'Priority']
+        cols = %w[Player Cash Value Liquidity Shares Companies Certs Priority]
         h('table.os-table', [
-          h(:thead, h(:tr, cols.map { |c| h(:th, c) })),
+          h(:thead, [h(:tr, cols.map { |c| h(:th, c) })]),
           h(:tbody, @game.players.map do |player|
             shares = share_count(@game.all_corporations.sum { |c| c.minor? ? 0 : num_shares_of(player, c) })
             cells = [
@@ -106,9 +112,10 @@ module View
       end
 
       def render_corporations
-        cols = ['ID', 'Corporation', *@game.players.map(&:name), 'IPO', 'Pool', 'Par', 'Market', 'Cash', 'Trains', 'Tokens', 'Order', 'President']
+        cols = ['ID', 'Corporation', *@game.players.map(&:name),
+                'IPO', 'Pool', 'Par', 'Market', 'Cash', 'Trains', 'Tokens', 'Order', 'President']
         h('table.os-table', [
-          h(:thead, h(:tr, cols.map { |c| h(:th, c) })),
+          h(:thead, [h(:tr, cols.map { |c| h(:th, c) })]),
           h(:tbody, @game.all_corporations.map do |corp|
             holders = @game.players.map do |player|
               count = share_count(num_shares_of(player, corp))
@@ -126,8 +133,7 @@ module View
                      operating_index ? operating_index + 1 : '—',
                      corp.owner&.name || '—']
             h(:tr, [
-              h(:td, h('span.os-corp-chip', { style: { backgroundColor: corp.color,
-                                                       color: corp.text_color } }, corp.id)),
+              h(:td, [h('span.os-corp-chip', { style: { backgroundColor: corp.color, color: corp.text_color } }, corp.id)]),
               *cells.drop(1).map { |v| h(:td, v.to_s) },
             ])
           end),
