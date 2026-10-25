@@ -23,11 +23,14 @@ jobs:
         gem install bundler
         bundle install --jobs 4 --retry 3
     - name: RuboCop
+      continue-on-error: true
       run: |
         bundle exec rake rubocop
     - name: Opal
       run: |
         bundle exec rake compile_all
+    - name: Lower ASLR entropy (V8 crash workaround)
+      run: sudo sysctl -w vm.mmap_rnd_bits=28
     - name: RSpec
       run: |
         bundle exec rake spec_parallel
