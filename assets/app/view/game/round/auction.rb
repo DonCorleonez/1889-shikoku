@@ -19,6 +19,7 @@ module View
         needs :hidden, default: true, store: true
         needs :flash_opts, default: {}, store: true
         needs :user
+        needs :embedded_layout, default: false
         needs :before_process_pass, default: -> {}, store: true
 
         def render
@@ -56,6 +57,8 @@ module View
         end
 
         def render_players
+          return nil if @embedded_layout
+
           return nil if !@step.players_visible? && hidden?
 
           if @step.players_visible?
@@ -548,6 +551,8 @@ module View
 
         # show the map if there are minors to pick from or a tile is to be laid
         def render_map
+          return nil if @embedded_layout
+
           show = @step.available.any?(&:minor?) ||
                  @current_actions.include?('lay_tile') ||
                  (@step.respond_to?(:show_map) && @step.show_map)
@@ -559,6 +564,8 @@ module View
         end
 
         def render_stock_market
+          return nil if @embedded_layout
+
           show = (@step.respond_to?(:show_stock_market?) && @step.show_stock_market?)
           return nil unless show
 

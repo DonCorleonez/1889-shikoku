@@ -11,7 +11,11 @@ services:
       context: .
       dockerfile: Dockerfile.selfhost
       target: web
-    image: shikoku_web
+      args:
+        GIT_REV: ${GIT_REV:-selfhost}
+    # Set SHIKOKU_WEB_IMAGE / SHIKOKU_APP_IMAGE in .env to the ghcr.io images
+    # built by CI to pull instead of building on the server (see DEPLOY.md).
+    image: ${SHIKOKU_WEB_IMAGE:-shikoku_web}
     ports:
       - "127.0.0.1:${WEB_PORT:-8189}:80"
     depends_on:
@@ -23,7 +27,9 @@ services:
       context: .
       dockerfile: Dockerfile.selfhost
       target: app
-    image: shikoku_app
+      args:
+        GIT_REV: ${GIT_REV:-selfhost}
+    image: ${SHIKOKU_APP_IMAGE:-shikoku_app}
     environment:
       RACK_ENV: production
       DATABASE_URL: postgres://${POSTGRES_USER:-shikoku}:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}@db/${POSTGRES_DB:-shikoku}

@@ -86,9 +86,9 @@ module Engine
       end
 
       describe '#exits' do
-        it "returns the correct edges for 18Chesapeake's tile X3" do
-          game = Engine.game_by_title('18Chesapeake').new(%w[a b c])
-          x3 = game.tile_by_id('X3-0')
+        it 'returns the correct edges for a two-city OO tile' do
+          x3 = Tile.from_code('X3', 'green', 'city=revenue:40;city=revenue:40;path=a:0,b:_0;path=a:_0,b:2;'\
+                                             'path=a:3,b:_1;path=a:_1,b:5;label=OO')
           expect(x3.cities[0].exits.sort).to eq([0, 2])
           expect(x3.cities[1].exits.sort).to eq([3, 5])
 
