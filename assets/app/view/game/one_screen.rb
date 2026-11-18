@@ -31,12 +31,13 @@ module View
       SEAT_COLORS = %w[#2B4ACB #7A8699 #B4BCC8 #4A5568 #8E9BF0 #D5DBE3].freeze
       POOL_COLOR = '#E2B93B'
       IPO_COLOR = '#EDF0F4'
+      # label and the word that identifies the step in its description
       OR_STEPS = [
-        ['Track', /track/i],
-        ['Token', /token/i],
-        ['Routes', /route/i],
-        ['Dividend', /dividend/i],
-        ['Trains', /train/i],
+        { label: 'Track', word: 'track' },
+        { label: 'Token', word: 'token' },
+        { label: 'Routes', word: 'route' },
+        { label: 'Dividend', word: 'dividend' },
+        { label: 'Trains', word: 'train' },
       ].freeze
 
       def render
@@ -292,8 +293,10 @@ module View
         label = held.map { |seg| "#{seg[:name]} #{seg[:pct]}%" }.join(', ')
         h('div.os-sharebar', { attrs: { role: 'img', 'aria-label': "Shares: #{label}" } },
           held.map do |seg|
-            h('span.os-share', { style: { flexGrow: seg[:pct], background: seg[:color] },
-                                 attrs: { title: "#{seg[:name]} #{seg[:pct]}%" } })
+            h('span.os-share', {
+                style: { flexGrow: seg[:pct], background: seg[:color] },
+                attrs: { title: "#{seg[:name]} #{seg[:pct]}%" },
+              })
           end)
       end
 
@@ -374,9 +377,9 @@ module View
       end
 
       def render_or_steps
-        description = @game.round.active_step&.description.to_s
-        current = OR_STEPS.index { |_, re| re.match?(description) }
-        h('ol.os-steps', { attrs: { 'aria-label': 'Operating steps' } }, OR_STEPS.each_with_index.map do |(name, _), i|
+        description = @game.round.active_step&.description.to_s.downcase
+        current = OR_STEPS.index { |step| description.include?(step[:word]) }
+        items = OR_STEPS.each_with_index.map do |step, i|
           state = if current.nil?
                     'next'
                   elsif i < current
@@ -385,8 +388,9 @@ module View
                     i == current ? 'now' : 'next'
                   end
           attrs = state == 'now' ? { 'aria-current': 'step' } : {}
-          h("li.os-step.os-step--#{state}", { attrs: attrs }, [h('span.os-step-dot'), name])
-        end)
+          h("li.os-step.os-step--#{state}", { attrs: attrs }, [h('span.os-step-dot'), step[:label]])
+        end
+        h('ol.os-steps', { attrs: { 'aria-label': 'Operating steps' } }, items)
       end
 
       def share_count(value)
