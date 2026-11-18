@@ -45,8 +45,7 @@ AUTO_ACTIONS_TEST_CASES = [
    [[7, 'buy_to_float', [
     'Auto Buy Shares',
     'KO',
-   ]]],
-  ],
+   ]]]],
 ].freeze
 
 describe 'Assets' do

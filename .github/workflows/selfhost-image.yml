@@ -1,0 +1,85 @@
+name: Self-host image (arm64)
+
+# Builds the docker-compose.selfhost.yml stack natively on an ARM64 runner
+# (same architecture as Oracle Cloud Ampere A1), boots it, smoke-tests the
+# site, and publishes the two images to ghcr.io so the server can pull them
+# instead of building.
+
+on:
+  push:
+    branches: [ main, 'debloat/**', 'deploy/**' ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  arm64:
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 60
+    env:
+      COMPOSE: docker compose -f docker-compose.selfhost.yml
+      GIT_REV: ${{ github.sha }}
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Write .env
+      run: |
+        echo "POSTGRES_PASSWORD=$(openssl rand -hex 24)" > .env
+        echo "WEB_PORT=8189" >> .env
+
+    - name: Build
+      run: $COMPOSE build
+
+    - name: Start
+      run: $COMPOSE up -d
+
+    - name: Smoke test
+      run: |
+        set -e
+        for i in $(seq 1 60); do
+          code=$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8189/ || true)
+          [ "$code" = 200 ] && break
+          sleep 5
+        done
+        echo "home: $code"; [ "$code" = 200 ]
+        check() {
+          code=$(curl -s -o /tmp/body -w '%{http_code}' "http://127.0.0.1:8189$1")
+          echo "$1 -> $code ($(wc -c < /tmp/body) bytes)"
+          [ "$code" = 200 ]
+          if [ -n "$2" ]; then grep -q "$2" /tmp/body; fi
+        }
+        check /
+        check /new_game
+        check /assets/main.css
+        check /assets/tutorial.json 'Good luck and have fun!'
+        check /assets/version.json "$GIT_REV"
+        check /logos/1889/AR.svg
+        # the compiled 1889 title bundle must exist
+        $COMPOSE exec -T web sh -c 'ls /public/assets/' | tee /tmp/assets.txt
+        grep -q 'g_1889' /tmp/assets.txt
+
+    - name: Logs
+      if: always()
+      run: $COMPOSE logs --no-color --tail=200
+
+    - name: Publish images to ghcr.io
+      if: success() && github.event_name != 'pull_request'
+      run: |
+        set -e
+        owner=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+        ref=$(echo "${{ github.ref_name }}" | tr '/' '-')
+        echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+        for svc in app web; do
+          for tag in "$ref" "sha-${GITHUB_SHA::7}"; do
+            img="ghcr.io/$owner/1889-shikoku-$svc:$tag-arm64"
+            docker tag "shikoku_$svc" "$img"
+            docker push "$img"
+            echo "pushed $img" >> "$GITHUB_STEP_SUMMARY"
+          done
+        done
+
+    - name: Stop
+      if: always()
+      run: $COMPOSE down -v

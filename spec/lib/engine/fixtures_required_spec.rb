@@ -20,7 +20,7 @@ module Engine
     metas = Engine::GAME_METAS.group_by { |m| m::DEV_STAGE }
 
     describe 'alpha games have at least one completed game' do
-      metas[:alpha].each do |meta|
+      (metas[:alpha] || []).each do |meta|
         next if SKIP_ALPHA.include?(meta.title)
 
         it meta.title do
@@ -34,7 +34,7 @@ module Engine
     end
 
     describe 'beta/production games have at least one completed game for each game_end_reason' do
-      (metas[:beta] + metas[:production]).each do |meta|
+      ((metas[:beta] || []) + (metas[:production] || [])).each do |meta|
         describe meta.title do
           game_end_counts = fixtures(meta).each_with_object(Hash.new(0)) do |fixture, counts|
             data = JSON.parse(File.read(fixture))

@@ -11,9 +11,18 @@ ENV RACK_ENV=production \
 RUN apt-get update && apt-get install -y --no-install-recommends libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# esbuild minifies the compiled JavaScript
-RUN curl -fsSL https://registry.npmjs.org/esbuild-linux-64/-/esbuild-linux-64-0.14.36.tgz | tar xz \
-    && mv package/bin/esbuild /usr/local/bin/ && rm -rf package
+# esbuild minifies the compiled JavaScript. Pick the binary for the build
+# architecture so the image builds natively on x86_64 and on ARM64 hosts such
+# as Oracle Cloud Ampere A1.
+ARG TARGETARCH
+RUN case "${TARGETARCH:-$(dpkg --print-architecture)}" in \
+      amd64) pkg=esbuild-linux-64 ;; \
+      arm64) pkg=esbuild-linux-arm64 ;; \
+      *) echo "unsupported architecture: ${TARGETARCH}" >&2; exit 1 ;; \
+    esac \
+    && curl -fsSL "https://registry.npmjs.org/${pkg}/-/${pkg}-0.14.36.tgz" | tar xz \
+    && mv package/bin/esbuild /usr/local/bin/ && rm -rf package \
+    && esbuild --version
 
 WORKDIR /18xx
 COPY Gemfile Gemfile.lock* ./
