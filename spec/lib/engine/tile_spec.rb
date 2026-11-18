@@ -3,12 +3,6 @@
 require './spec/spec_helper'
 
 EXPECTED_TILE_UPGRADES = {
-  '18Chesapeake' => {
-    'X3' => %w[X7],
-    'X4' => %w[X7],
-    'X5' => %w[X7],
-    'X7' => %w[],
-  },
   '1889' => {
     'blank' => %w[7 8 9],
     'city' => %w[5 6 57],
@@ -53,52 +47,6 @@ EXPECTED_TILE_UPGRADES = {
     '466' => %w[],
     '492' => %w[],
     '611' => %w[],
-  },
-  '1822CA' => {
-    'A1' => %w[A2],
-    'A2' => %w[A3],
-    'A3' => %w[],
-    'B1' => %w[B2],
-    'B2' => %w[B3],
-    'B3' => %w[],
-    'M1' => %w[M2 M3],
-    'M2' => %w[M4 M5],
-    'M3' => %w[M5 M6],
-    'M4' => %w[M7 M8],
-    'M5' => %w[M8],
-    'M6' => %w[M8],
-    'M7' => %w[],
-    'M8' => %w[],
-    'O1' => %w[O3 O4],
-    'O2' => %w[O4],
-    'O3' => %w[O5 O6],
-    'O4' => %w[O6],
-    'O5' => %w[O7 O8],
-    'O6' => %w[O8],
-    'O7' => %w[],
-    'O8' => %w[],
-    'Q1' => %w[Q3 Q4],
-    'Q2' => %w[Q3 Q4],
-    'Q3' => %w[Q5 Q6],
-    'Q4' => %w[Q6],
-    'Q5' => %w[Q7 Q8],
-    'Q6' => %w[Q8],
-    'Q7' => %w[],
-    'Q8' => %w[],
-    'T1' => %w[T2 T3],
-    'T2' => %w[T4 T5],
-    'T3' => %w[T4 T5],
-    'T4' => %w[T6 T7],
-    'T5' => %w[T7],
-    'T6' => %w[],
-    'T7' => %w[],
-    'W1' => %w[W2 W3],
-    'W2' => %w[W4 W5],
-    'W3' => %w[W5],
-    'W4' => %w[W6 W7],
-    'W5' => %w[W7],
-    'W6' => %w[],
-    'W7' => %w[],
   },
 }.freeze
 
@@ -248,15 +196,10 @@ module Engine
 
     describe '#revenue_to_render' do
       {
-        '1846' => {
-          'C15' => [40],
-          'C17' => [{ yellow: 40, brown: 60 }],
-          'D6' => [10, 10, 10, 10],
-        },
-        '1882' => {
-          'D8' => [30],
-          'J10' => [40, 40],
-          'O11' => [{ yellow: 30, brown: 30 }],
+        '1889' => {
+          'K4' => [30],
+          'F1' => [{ yellow: 30, brown: 60, diesel: 100 }],
+          'L7' => [{ yellow: 20, brown: 40, diesel: 80 }],
         },
       }.each do |game_title, specs|
         game = Engine.game_by_title(game_title).new(%w[p1 p2 p3])

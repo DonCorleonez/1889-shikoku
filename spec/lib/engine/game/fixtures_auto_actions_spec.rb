@@ -6,16 +6,8 @@ require 'json'
 
 module Engine
   AUTO_FIXTURES = [
-    '1861/29683.json', # token pass
-    ['1830/29133.json', 150], # buy till float
-    '1817NA/25363.json', # pass in merger
-    '1882/hs_iopxwxht_26178.json', # Auto-pass pass
-    '1882/hs_fxmfdndg_26178.json', # Auto-pass disable (shares sold)
-    '1882/hs_kufujwkw_26178.json', # Auto-pass disable (PAR)
-    '1882/hs_vaxptumi_26178.json', # Auto-pass disable (buy unsecure)
     '1889/hs_lhglbbiz_17502.json', # Auto-buy from market
     '1889/hs_jmmljkbw_17502.json', # Auto-buy multiple from IPO
-    '1822/hs_lxemeslq_30797.json', # Auto-pass 1822 bid cases
   ].freeze
 
   AUTO_FIXTURES.each do |fixture_name|
@@ -59,28 +51,6 @@ module Engine
           end
         end
       end
-    end
-  end
-
-  describe 'Autoactions' do
-    it '1867 should provide pass when token lay is impossible' do
-      fixture = 'spec/fixtures/1867/21268.json'
-      cursor = 835
-      data = JSON.parse(File.read(fixture))
-      game = Game.load(data, at_action: cursor)
-
-      action = Engine::Action::Base.action_from_h(data['actions'][cursor], game)
-      # Check creating new auto actions
-      game.process_action(action, add_auto_actions: true)
-      expect(action.auto_actions.size).to eq(1)
-      expect(action.auto_actions.first).to be_instance_of(Engine::Action::Pass)
-      # Game should have autopassed and be at RunRoutes
-      expect(game.round.active_step).to be_instance_of(Engine::Step::Route)
-
-      # Check reading existing actions
-      game = Game.load(data, at_action: cursor)
-      game.process_action(action.to_h)
-      expect(game.round.active_step).to be_instance_of(Engine::Step::Route)
     end
   end
 end

@@ -9,9 +9,6 @@ module Engine
   players = ('a'..'z')
 
   Engine::GAME_METAS.each do |game_meta|
-    # 18ZOO is a special case where only the different map variations are
-    # actually used as game classes
-    next if game_meta == Engine::Game::G18ZOO::Meta
 
     describe game_meta.title do
       let(:min_players) { players.take(game_meta::PLAYER_RANGE.min) }

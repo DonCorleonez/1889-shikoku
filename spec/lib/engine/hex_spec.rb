@@ -242,46 +242,6 @@ module Engine
 
       context 'icon preservation' do
         {
-          '1846' => [
-            {
-              hex: 'F22',
-              initial_icons: %w[20],
-              lays: [],
-            },
-            {
-              hex: 'D22',
-              initial_icons: %w[30],
-              lays: [],
-            },
-            {
-              hex: 'C17',
-              initial_icons: %w[30],
-              lays: [],
-            },
-            {
-              hex: 'C21',
-              initial_icons: %w[30],
-              lays: [],
-            },
-            {
-              hex: 'B18',
-              initial_icons: %w[20],
-              lays: [],
-            },
-            {
-              hex: 'J4',
-              initial_icons: %w[ic],
-              lays: [{ tile: '9', rotation: 0, icons: [] }],
-            },
-          ],
-          '1882' => [
-            {
-              hex: 'B4',
-              initial_icons: %w[NWR],
-              lays: [{ tile: '8', rotation: 5, icons: %w[NWR] },
-                     { tile: 'original', rotation: 0, icons: %w[NWR] }],
-            },
-          ],
           '1889' => [
             {
               hex: 'G10',

@@ -3,7 +3,7 @@
 require './spec/spec_helper'
 
 # set this value for the fixture you want to investigate
-fixture = '18Uruguay/18Uruguay_game_end_bankrupt.json'
+fixture = '1889/314.json'
 
 # This block can be quite slow and expensive even for a single fixture, so its
 # best use is to identify exactly at which action something breaks in a
