@@ -60,7 +60,8 @@ module View
                 end
         count = count.clamp(1, 3)
         result = []
-        if type == 'OR'
+        case type
+        when 'OR'
           ((round.round_num + 1)..count).each do |num|
             result << { label: round_name('OR', turn, num), status: 'projected' }
           end
@@ -70,7 +71,7 @@ module View
             result << { label: "SR #{turn + 1}", status: 'projected' }
             result << { label: "OR #{turn + 1}.1", status: 'projected' }
           end
-        elsif type == 'SR'
+        when 'SR'
           result << { label: "OR #{turn}.1", status: 'projected' }
           result << { label: "OR #{turn}.2", status: 'projected' } if count >= 2
           result << { label: "OR #{turn}.3", status: 'projected' } if count >= 3
