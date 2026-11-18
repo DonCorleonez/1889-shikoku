@@ -508,9 +508,24 @@ module View
       h('div.game', children)
     end
 
-    # Opt-in with ?onescreen=1 on a 1889 game URL. Never persisted in hs_* saves.
+    # The default screen for 1889. ?classic=1 (or ?onescreen=0) shows the
+    # original layout. Never persisted in hs_* saves.
     def shikoku_one_screen?
-      Lib::Params['onescreen'].to_s == '1' && @game.class.display_title.include?('1889')
+      return false unless @game.class.display_title.include?('1889')
+      return false if Lib::Params['classic'].to_s == '1' || Lib::Params['onescreen'].to_s == '0'
+
+      true
+    end
+
+    # player id (String) => AI level for the hotseat seats the computer plays
+    def ai_seat_levels
+      return {} unless @game_data[:mode] == :hotseat
+
+      settings = @game_data['settings'] || {}
+      Array(settings['ai_players']).to_h do |id|
+        level = settings.dig('ai_levels', id.to_s) || settings['ai_level'] || 'normal'
+        [id.to_s, Engine::AI::Bot.level(level).to_s]
+      end
     end
 
     def render_one_screen
@@ -533,6 +548,7 @@ module View
         round_label: render_round,
         action_panel: render_action(true),
         controls: controls,
+        ai_seats: ai_seat_levels,
         game_log: h(Game::GameLog, user: @user, scroll_pos: @scroll_pos,
                                    chat_input: @chat_input))
     end

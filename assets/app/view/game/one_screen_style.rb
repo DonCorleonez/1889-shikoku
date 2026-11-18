@@ -1,80 +1,203 @@
 # frozen_string_literal: true
 
-# Scoped stylesheet for the opt-in Shikoku one-screen view (?onescreen=1).
+# Scoped stylesheet for the 1889 Shikoku one-screen game view.
 # Inlined (not under public/assets, which is git-ignored build output).
+# Colours and fonts come from the --sk-* tokens in view/shikoku_style.rb.
 module View
   module Game
     ONE_SCREEN_STYLE = <<~CSS
-      /* 1889 Shikoku, opt-in workspace (?onescreen=1). Scoped to #shikoku-one-screen. */
+      /* 1889 Shikoku one-screen workspace. Scoped to #shikoku-one-screen (plus the AI bar above it). */
       #shikoku-one-screen {
-        --forest: #133f33; --forest-2: #1b5546; --parchment: #f6f1e6;
-        --paper: #fffaf0; --sand: #d8c8aa; --ink: #262e2a; --line: #d9cdb7;
-        color: var(--ink); background: var(--parchment); font-family: system-ui, sans-serif;
-        font-size: 12px; min-height: 90vh; width: 100%; overflow: hidden;
-        box-sizing: border-box; contain: style;
+        color: var(--sk-ink, #18202B); font-family: var(--sk-sans, system-ui, sans-serif); font-size: 13px;
+        width: 100%; box-sizing: border-box; display: flex; flex-direction: column; gap: 12px;
       }
-      #shikoku-one-screen *, #shikoku-one-screen *::before, #shikoku-one-screen *::after {box-sizing: border-box;}
-      #shikoku-one-screen .os-main-header {display:flex; align-items:center; justify-content:space-between; gap:14px; padding:10px 16px; background:var(--forest); color:white; min-height:52px;}
-      #shikoku-one-screen .os-brand {font-family:Georgia,serif; font-size:20px; letter-spacing:.07em; white-space:nowrap;}
-      #shikoku-one-screen .os-timeline {display:flex; gap:5px; align-items:center; padding:8px 11px; overflow:auto hidden; white-space:nowrap; background:#fbf7ed; border-bottom:1px solid var(--line); scrollbar-width:thin;}
-      #shikoku-one-screen .os-round {display:flex;align-items:center;gap:5px; padding:6px 9px; border-radius:6px; background:#eee7d9; color:#524d43;}
-      #shikoku-one-screen .os-round--complete {color:#105c46;background:#dceee5;}
-      #shikoku-one-screen .os-round--current {color:#fff;background:var(--forest);font-weight:700;}
-      #shikoku-one-screen .os-round--projected {border:1px dashed #bcb09a;background:transparent;}
-      #shikoku-one-screen .os-round-projected {font-size:9px;opacity:.8;}
-      #shikoku-one-screen .os-round-indicator {font-weight:900;}
-      #shikoku-one-screen .os-workspace {display:grid;grid-template-columns:minmax(285px,28%) minmax(350px,1fr) minmax(335px,31%); gap:8px; padding:8px; min-height:320px; height:calc((100dvh - 182px) * .62);}
-      #shikoku-one-screen .os-financial-pane {display:grid; grid-template-rows: 47% minmax(0,1fr); gap:8px; min-width:0; min-height:0;}
-      #shikoku-one-screen .os-card {background:var(--paper);border:1px solid var(--line);border-radius:7px;min-width:0;min-height:0;display:flex;flex-direction:column;overflow:hidden;}
-      #shikoku-one-screen .os-card-heading {font:700 15px Georgia,serif;padding:8px 11px;border-bottom:1px solid var(--line); flex-shrink:0;}
-      #shikoku-one-screen .os-card-body {padding:6px;overflow:auto;min-height:0;flex:1;scrollbar-width:thin;}
-      #shikoku-one-screen .os-table {border-collapse:collapse;font-size:11px;min-width:100%;width:max-content;color:var(--ink);}
-      #shikoku-one-screen .os-table td,#shikoku-one-screen .os-table th {border:1px solid #e1d6c4;padding:5px 6px;text-align:right;white-space:nowrap;}
-      #shikoku-one-screen .os-table td:nth-child(1),#shikoku-one-screen .os-table th:nth-child(1),#shikoku-one-screen .os-table td:nth-child(2) {text-align:left;}
-      #shikoku-one-screen .os-table th {background:#eee7da;position:sticky;top:0;z-index:1;}
-      #shikoku-one-screen .os-table tbody tr:nth-child(2n) {background:#f4efe6;}
-      #shikoku-one-screen .os-corp-chip {display:inline-block; min-width:25px; border-radius:3px; padding:3px; text-align:center; font-weight:bold;}
+      #shikoku-one-screen *, #shikoku-one-screen *::before, #shikoku-one-screen *::after { box-sizing: border-box; }
+      #shikoku-one-screen .os-num { font-variant-numeric: tabular-nums; }
+      #shikoku-one-screen .os-muted { color: var(--sk-muted); font-size: 12px; }
+
+      /* status bar */
+      #shikoku-one-screen .os-status {
+        display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; padding: 12px 16px;
+        background: var(--sk-card); border: 1px solid var(--sk-line); border-radius: 14px;
+      }
+      #shikoku-one-screen .os-status-pills { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; min-width: 0; }
+      #shikoku-one-screen .os-pill { border-radius: 999px; padding: 7px 12px; background: var(--sk-faint); font: 600 13px/1 var(--sk-sans); white-space: nowrap; }
+      #shikoku-one-screen .os-pill--round { background: var(--sk-accent); color: var(--sk-accent-ink); font-weight: 700; }
+      #shikoku-one-screen .os-status-activity { color: var(--sk-muted); font: 500 13px/1.3 var(--sk-sans); }
+      #shikoku-one-screen .os-bank { margin-left: auto; min-width: 160px; display: flex; flex-direction: column; gap: 5px; }
+      #shikoku-one-screen .os-bank-row { display: flex; justify-content: space-between; font: 500 12px/1 var(--sk-sans); color: var(--sk-muted); }
+      #shikoku-one-screen .os-bank-row strong { color: var(--sk-ink); }
+      #shikoku-one-screen .os-meter { height: 6px; border-radius: 999px; background: #E5E9EF; overflow: hidden; }
+      #shikoku-one-screen .os-meter-fill { height: 100%; background: #2A2F38; border-radius: 999px; }
+
+      /* round tracker */
+      #shikoku-one-screen .os-timeline { display: flex; gap: 8px; align-items: center; overflow-x: auto; padding: 2px 2px 6px; scrollbar-width: thin; }
+      #shikoku-one-screen .os-round {
+        display: inline-flex; align-items: center; gap: 7px; padding: 8px 12px; border-radius: 999px; white-space: nowrap;
+        font: 600 13px/1 var(--sk-sans); background: var(--sk-card); color: var(--sk-muted); border: 1px solid var(--sk-line);
+      }
+      #shikoku-one-screen .os-round--complete .os-round-indicator { color: var(--sk-muted); }
+      #shikoku-one-screen .os-round--current { background: var(--sk-ink); color: #FFFFFF; border-color: var(--sk-ink); }
+      #shikoku-one-screen .os-round--current .os-round-indicator { color: var(--sk-gold); }
+      #shikoku-one-screen .os-round--projected { background: transparent; border: 1px dashed #B7C0CC; }
+      #shikoku-one-screen .os-round-projected { font: 600 10px/1 var(--sk-sans); letter-spacing: .06em; text-transform: uppercase; color: var(--sk-muted); }
+      #shikoku-one-screen .os-round-indicator { font-weight: 900; }
+
+      /* layout */
+      #shikoku-one-screen .os-workspace { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start; }
+      #shikoku-one-screen .os-col { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+      #shikoku-one-screen .os-col-left { flex: 1 1 290px; max-width: 360px; }
+      #shikoku-one-screen .os-col-center { flex: 999 1 520px; }
+      #shikoku-one-screen .os-col-right { flex: 1 1 320px; max-width: 400px; }
+      #shikoku-one-screen .os-row { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start; }
+      #shikoku-one-screen .os-market-card { flex: 999 1 420px; }
+      #shikoku-one-screen .os-trains-card { flex: 1 1 230px; }
+
+      /* cards */
+      #shikoku-one-screen .os-card {
+        background: var(--sk-card); border: 1px solid var(--sk-line); border-radius: 14px; padding: 16px;
+        display: flex; flex-direction: column; gap: 12px; min-width: 0;
+      }
+      #shikoku-one-screen .os-card-heading { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+      #shikoku-one-screen .os-card-title { margin: 0; font: 600 13px/1.2 var(--sk-display); letter-spacing: .08em; text-transform: uppercase; color: var(--sk-muted); }
+      #shikoku-one-screen .os-card-hint { font: 500 12px/1 var(--sk-sans); color: var(--sk-muted); }
+      #shikoku-one-screen .os-card-body { min-width: 0; }
+      #shikoku-one-screen .os-btn {
+        min-height: 36px; padding: 0 12px; border-radius: 8px; border: 1px solid var(--sk-line-2); background: var(--sk-card);
+        color: var(--sk-ink); font: 600 13px/1 var(--sk-sans); cursor: pointer;
+      }
+
+      /* players */
+      #shikoku-one-screen .os-players { display: flex; flex-direction: column; gap: 10px; }
+      #shikoku-one-screen .os-player { border: 1px solid var(--sk-line); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+      #shikoku-one-screen .os-player--active { border: 2px solid var(--sk-accent); padding: 11px; }
+      #shikoku-one-screen .os-player-head { display: flex; align-items: center; gap: 10px; }
+      #shikoku-one-screen .os-avatar {
+        width: 32px; height: 32px; flex: none; border-radius: 999px; color: #FFFFFF; display: inline-flex; align-items: center;
+        justify-content: center; font: 700 12px/1 var(--sk-sans);
+      }
+      #shikoku-one-screen .os-avatar--lg { width: 40px; height: 40px; font-size: 14px; }
+      #shikoku-one-screen .os-player-name { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+      #shikoku-one-screen .os-player-name strong { font: 600 15px/1.1 var(--sk-sans); overflow-wrap: anywhere; }
+      #shikoku-one-screen .os-badges { display: inline-flex; flex-wrap: wrap; gap: 6px; }
+      #shikoku-one-screen .os-badge { border-radius: 999px; padding: 3px 7px; font: 600 11px/1 var(--sk-sans); background: var(--sk-faint); color: var(--sk-muted); white-space: nowrap; }
+      #shikoku-one-screen .os-badge--human { background: var(--sk-accent-soft); color: var(--sk-accent); }
+      #shikoku-one-screen .os-badge--priority { background: var(--sk-gold); color: var(--sk-ink); }
+      #shikoku-one-screen .os-badge--active { background: var(--sk-accent); color: var(--sk-accent-ink); }
+      #shikoku-one-screen .os-player-cash { text-align: right; display: flex; flex-direction: column; gap: 2px; font: 500 12px/1.2 var(--sk-sans); color: var(--sk-muted); }
+      #shikoku-one-screen .os-player-cash strong { font: 700 18px/1 var(--sk-display); color: var(--sk-ink); }
+      #shikoku-one-screen .os-player-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+      #shikoku-one-screen .os-stat { display: flex; flex-direction: column; gap: 3px; font: 500 12px/1.2 var(--sk-sans); color: var(--sk-muted); min-width: 0; }
+      #shikoku-one-screen .os-stat strong { font: 600 14px/1.2 var(--sk-sans); color: var(--sk-ink); }
+      #shikoku-one-screen .os-holds { display: flex; flex-wrap: wrap; gap: 4px; }
+
+      /* corporations */
+      #shikoku-one-screen .os-chip {
+        display: inline-flex; align-items: center; justify-content: center; min-width: 28px; height: 28px; padding: 0 5px; flex: none;
+        border-radius: 7px; font: 700 11px/1 var(--sk-display); letter-spacing: .02em;
+      }
+      #shikoku-one-screen .os-chip--sm { min-width: 22px; height: 20px; font-size: 9px; border-radius: 5px; padding: 0 3px; }
+      #shikoku-one-screen .os-chip--lg { min-width: 42px; height: 42px; font-size: 15px; border-radius: 10px; }
+      #shikoku-one-screen .os-legend { display: flex; flex-wrap: wrap; gap: 10px; font: 500 11px/1 var(--sk-sans); color: var(--sk-muted); margin-bottom: 8px; }
+      #shikoku-one-screen .os-legend-item { display: inline-flex; align-items: center; gap: 4px; }
+      #shikoku-one-screen .os-swatch { width: 10px; height: 10px; border-radius: 3px; border: 1px solid #D5DBE3; display: inline-block; }
+      #shikoku-one-screen .os-corps { display: flex; flex-direction: column; gap: 4px; }
+      #shikoku-one-screen .os-corp { display: flex; flex-direction: column; gap: 8px; padding: 10px; border-radius: 10px; }
+      #shikoku-one-screen .os-corp--active { background: var(--sk-soft); outline: 2px solid var(--sk-accent); }
+      #shikoku-one-screen .os-corp--unstarted { opacity: .8; }
+      #shikoku-one-screen .os-corp-head { display: flex; align-items: center; gap: 10px; }
+      #shikoku-one-screen .os-corp-name { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; font: 500 12px/1.2 var(--sk-sans); color: var(--sk-muted); }
+      #shikoku-one-screen .os-corp-name strong { font: 600 13px/1.2 var(--sk-sans); color: var(--sk-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      #shikoku-one-screen .os-order { font: 600 12px/1 var(--sk-sans); color: var(--sk-muted); }
+      #shikoku-one-screen .os-corp-money { display: flex; align-items: baseline; gap: 10px; font: 500 12px/1 var(--sk-sans); color: var(--sk-muted); }
+      #shikoku-one-screen .os-price { font: 700 16px/1 var(--sk-display); color: var(--sk-ink); }
+      #shikoku-one-screen .os-trend { color: var(--sk-good); font-weight: 600; }
+      #shikoku-one-screen .os-trend--down { color: var(--sk-warn); }
+      #shikoku-one-screen .os-corp-cash { margin-left: auto; }
+      #shikoku-one-screen .os-corp-cash strong { color: var(--sk-ink); }
+      #shikoku-one-screen .os-sharebar { display: flex; gap: 2px; height: 8px; border-radius: 999px; overflow: hidden; background: var(--sk-ground); }
+      #shikoku-one-screen .os-share { flex-basis: 0; height: 100%; }
+      #shikoku-one-screen .os-corp-assets { display: flex; align-items: center; gap: 6px; }
+      #shikoku-one-screen .os-trains { display: inline-flex; flex-wrap: wrap; gap: 4px; }
+      #shikoku-one-screen .os-train { border: 1px solid var(--sk-line-2); border-radius: 5px; padding: 3px 6px; font: 700 11px/1 var(--sk-sans); }
+      #shikoku-one-screen .os-train--big { min-width: 34px; height: 26px; display: inline-flex; align-items: center; justify-content: center; background: #2A2F38; color: #FFFFFF; border: 0; font: 700 13px/1 var(--sk-display); }
+      #shikoku-one-screen .os-no-train { color: var(--sk-warn); font: 500 12px/1 var(--sk-sans); }
+      #shikoku-one-screen .os-tokens { margin-left: auto; display: inline-flex; gap: 4px; align-items: center; }
+      #shikoku-one-screen .os-token { width: 10px; height: 10px; border-radius: 999px; border: 1.5px solid; display: inline-block; }
+
+      /* map */
+      #shikoku-one-screen .os-map-card .os-card-body { background: #D3E5EE; border-radius: 12px; overflow: auto; max-height: 78vh; }
       /* margin:auto (not flex centering) keeps an oversized map scrollable to its top-left edge. */
-      #shikoku-one-screen .os-map-card .os-card-body {display:flex; background:#e4ece7;}
-      #shikoku-one-screen .os-map-card .os-card-body>div {max-width:none;margin:auto;}
-      #shikoku-one-screen .os-action-card .os-card-body {padding:10px;}
-      #shikoku-one-screen .os-current-round {padding:7px;border-radius:4px;background:#ebede3;color:var(--forest);font-weight:600;}
-      #shikoku-one-screen .os-action-form {margin-top:10px; min-height:130px;}
-      #shikoku-one-screen .os-tools {border-top:1px solid var(--line);margin-top:10px;padding-top:7px;}
-      #shikoku-one-screen .os-data-strip {display:grid;grid-template-columns: minmax(260px,32%) minmax(220px,19%) minmax(260px,28%) minmax(185px,1fr);gap:8px;padding:0 8px 8px;height:calc((100dvh - 182px) * .38);min-height:190px;}
-      #shikoku-one-screen .os-stock-zoom {width:750px;transform:scale(.55);transform-origin:top left; height:550px;}
-      #shikoku-one-screen .os-market-card .os-card-body {overflow:auto;}
-      #shikoku-one-screen .os-bank-summary {line-height:1.6;background:#f0eadf;padding:6px;margin-bottom:5px;}
-      #shikoku-one-screen .os-tile-card .os-card-body {overflow:auto;}
-      #shikoku-one-screen .os-tile-card #tile_manifest {margin:4px;display:flex;flex-flow:row wrap;}
-      #shikoku-one-screen .os-log-card .os-card-body {font-size:11px;}
-      #shikoku-one-screen a,#shikoku-one-screen button {cursor:pointer;}
-      #shikoku-one-screen button:focus-visible,#shikoku-one-screen a:focus-visible {outline:2px solid #ec8b38;outline-offset:2px;}
-      @media (max-width: 1380px) {
-        #shikoku-one-screen .os-workspace {grid-template-columns:minmax(240px,27%) minmax(300px,1fr) minmax(300px,34%);height:calc((100dvh - 182px) * .62);}
-        #shikoku-one-screen .os-data-strip {grid-template-columns:30% 20% 28% 22%;height:calc((100dvh - 182px) * .38);}
-        #shikoku-one-screen .os-main-header {gap:8px;font-size:10px;}
+      #shikoku-one-screen .os-map { display: flex; }
+      #shikoku-one-screen .os-map > div { max-width: none; margin: auto; }
+
+      /* market */
+      #shikoku-one-screen .os-market-heading { display: inline-flex; align-items: center; gap: 10px; }
+      #shikoku-one-screen .os-market-card .os-card-body { overflow: auto; max-height: 340px; }
+      #shikoku-one-screen .os-stock-zoom { width: 750px; transform: scale(.62); transform-origin: top left; height: 420px; }
+      #shikoku-one-screen .os-market-expanded .os-card-body { max-height: none; }
+      #shikoku-one-screen .os-market-expanded .os-stock-zoom { transform: none; height: auto; width: auto; }
+
+      /* trains & phase */
+      #shikoku-one-screen .os-phases { display: flex; gap: 4px; }
+      #shikoku-one-screen .os-phase { flex: 1; text-align: center; padding: 8px 0; border-radius: 8px; font: 700 13px/1 var(--sk-sans); }
+      #shikoku-one-screen .os-phase--past { background: #E5E9EF; color: var(--sk-muted); }
+      #shikoku-one-screen .os-phase--now { background: var(--sk-ink); color: #FFFFFF; }
+      #shikoku-one-screen .os-phase--next { background: var(--sk-card); border: 1px solid var(--sk-line-2); }
+      #shikoku-one-screen .os-note { margin: 8px 0 0; font: 500 12px/1.5 var(--sk-sans); color: var(--sk-muted); }
+      #shikoku-one-screen .os-note--alert { color: var(--sk-warn); font-weight: 600; }
+      #shikoku-one-screen .os-depot { display: flex; flex-direction: column; margin-top: 8px; }
+      #shikoku-one-screen .os-depot-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-top: 1px solid #EEF1F5; }
+      #shikoku-one-screen .os-depot-row .os-muted { margin-left: auto; }
+
+      /* action */
+      #shikoku-one-screen .os-action-card { border: 2px solid var(--sk-accent); }
+      #shikoku-one-screen .os-action-intro { display: flex; flex-direction: column; gap: 14px; }
+      #shikoku-one-screen .os-action-head { display: flex; align-items: center; gap: 12px; }
+      #shikoku-one-screen .os-action-title { display: flex; flex-direction: column; gap: 4px; min-width: 0; font: 500 13px/1.3 var(--sk-sans); color: var(--sk-muted); }
+      #shikoku-one-screen .os-action-title strong { font: 700 18px/1.15 var(--sk-display); color: var(--sk-ink); }
+      #shikoku-one-screen .os-steps { margin: 0; padding: 0; display: flex; list-style: none; }
+      #shikoku-one-screen .os-step { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; font: 500 12px/1 var(--sk-sans); color: #8790A0; }
+      #shikoku-one-screen .os-step-dot { width: 10px; height: 10px; border-radius: 999px; background: #D5DBE3; }
+      #shikoku-one-screen .os-step--done { color: var(--sk-muted); }
+      #shikoku-one-screen .os-step--done .os-step-dot { background: var(--sk-muted); }
+      #shikoku-one-screen .os-step--now { color: var(--sk-ink); font-weight: 700; }
+      #shikoku-one-screen .os-step--now .os-step-dot { background: var(--sk-accent); box-shadow: 0 0 0 4px #DCE3F7; }
+      #shikoku-one-screen .os-current-round { padding: 10px 12px; border-radius: 10px; background: var(--sk-soft); color: var(--sk-ink); font: 600 13px/1.4 var(--sk-sans); }
+      #shikoku-one-screen .os-current-round h3, #shikoku-one-screen .os-current-round div { margin: 0; font: inherit; }
+      #shikoku-one-screen .os-action-form { min-height: 80px; overflow-x: auto; }
+      #shikoku-one-screen .os-action-form button, #shikoku-one-screen .os-tools button {
+        min-height: 40px; padding: 0 14px; border-radius: 10px; border: 1px solid var(--sk-line-2); background: var(--sk-card);
+        color: var(--sk-ink); font: 600 14px/1 var(--sk-sans); cursor: pointer; margin: 3px 4px 3px 0;
       }
-      @media (max-width: 1050px) {
-        #shikoku-one-screen {overflow:visible;}
-        #shikoku-one-screen .os-workspace {grid-template-columns:1fr 1fr;grid-template-rows:minmax(370px,50vh) minmax(270px,35vh);height:auto;}
-        #shikoku-one-screen .os-financial-pane {grid-column:1/-1;grid-row:2;grid-template-columns:1fr 1fr;grid-template-rows:1fr;}
-        #shikoku-one-screen .os-data-strip {grid-template-columns:1fr 1fr;height:auto;}
-        #shikoku-one-screen .os-data-strip>.os-card {height:260px;}
+      #shikoku-one-screen .os-action-form button:hover, #shikoku-one-screen .os-tools button:hover { background: var(--sk-soft); }
+      #shikoku-one-screen .os-tools { border-top: 1px solid #EEF1F5; padding-top: 12px; }
+      #shikoku-one-screen .os-log-card .os-card-body { max-height: 420px; overflow: auto; font: 500 13px/1.45 var(--sk-sans); }
+
+      /* extras */
+      #shikoku-one-screen .os-extra { display: flex; flex-direction: column; gap: 10px; }
+      #shikoku-one-screen .os-details { background: var(--sk-card); border: 1px solid var(--sk-line); border-radius: 14px; padding: 0 16px; }
+      #shikoku-one-screen .os-details > summary { cursor: pointer; padding: 14px 0; font: 600 13px/1.2 var(--sk-display); letter-spacing: .08em; text-transform: uppercase; color: var(--sk-muted); }
+      #shikoku-one-screen .os-details-body { padding-bottom: 16px; overflow-x: auto; }
+      #shikoku-one-screen .os-details #tile_manifest { display: flex; flex-flow: row wrap; }
+
+      #shikoku-one-screen a, #shikoku-one-screen button { cursor: pointer; }
+      #shikoku-one-screen button:focus-visible, #shikoku-one-screen a:focus-visible, #shikoku-one-screen summary:focus-visible {
+        outline: 2px solid var(--sk-accent); outline-offset: 2px;
       }
-      @media (max-width: 650px) {
-        #shikoku-one-screen .os-main-header {flex-wrap:wrap;}
-        #shikoku-one-screen .os-workspace {display:flex;flex-direction:column;height:auto;}
-        #shikoku-one-screen .os-map-card {height:45vh;min-height:320px;}
-        #shikoku-one-screen .os-action-card {min-height:300px;max-height:calc((100dvh - 182px) * .62);}
-        #shikoku-one-screen .os-financial-pane {display:grid;grid-template-columns:1fr;grid-template-rows:180px 220px;}
-        #shikoku-one-screen .os-data-strip {grid-template-columns:1fr;}
-        #shikoku-one-screen .os-data-strip>.os-card {height:240px;}
+
+      /* the AI seat bar, mounted once by GamePage just above this view */
+      #game #ai_players {
+        display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin: 0 0 12px !important; padding: 10px 14px !important;
+        background: var(--sk-card); border: 1px solid var(--sk-line) !important; border-radius: 14px !important; font: 500 13px/1.4 var(--sk-sans);
       }
-      #shikoku-one-screen .os-market-heading {display:flex;justify-content:space-between;align-items:center;gap:8px;}
-      #shikoku-one-screen .os-market-heading button {border:1px solid #d5c7ae;background:#fff8eb;padding:3px 8px;border-radius:4px;font-size:11px;}
-      #shikoku-one-screen .os-market-card.os-market-expanded {position:fixed;inset:5vh 5vw;z-index:20000;border:2px solid #1b5546;box-shadow:0 0 0 100vmax rgba(15,35,29,.6);}
-      #shikoku-one-screen .os-market-card.os-market-expanded .os-stock-zoom {transform:scale(1);width:770px;height:600px;}
+      #game #ai_players button { min-height: 36px; padding: 0 12px; border-radius: 8px; border: 1px solid var(--sk-line-2); background: var(--sk-card); font: 600 13px/1 var(--sk-sans); cursor: pointer; }
+      #game #ai_players select { min-height: 32px; border-radius: 6px; border: 1px solid var(--sk-line-2); }
+
+      @media (max-width: 760px) {
+        #shikoku-one-screen .os-col-left, #shikoku-one-screen .os-col-right { max-width: none; }
+        #shikoku-one-screen .os-bank { margin-left: 0; width: 100%; }
+      }
     CSS
   end
 end

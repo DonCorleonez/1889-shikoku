@@ -12,6 +12,7 @@ require 'view/game/one_screen_style'
 
 module View
   module Game
+    # The default 1889 game screen: everything on one page.
     # A *view only* workspace; core rules/actions remain in the existing views.
     # The GamePage parent still mounts AiPlayers exactly once.
     class OneScreen < Snabberb::Component
@@ -23,34 +24,73 @@ module View
       needs :round_label
       needs :controls
       needs :game_log
+      # player id (String) => AI level (String) for seats the computer plays
+      needs :ai_seats, default: {}
+
+      # Seat colours for the share bars; distinct in lightness, not hue alone.
+      SEAT_COLORS = %w[#2B4ACB #7A8699 #B4BCC8 #4A5568 #8E9BF0 #D5DBE3].freeze
+      POOL_COLOR = '#E2B93B'
+      IPO_COLOR = '#EDF0F4'
+      OR_STEPS = [
+        ['Track', /track/i],
+        ['Token', /token/i],
+        ['Routes', /route/i],
+        ['Dividend', /dividend/i],
+        ['Trains', /train/i],
+      ].freeze
 
       def render
         h('div#shikoku-one-screen', [
           h(:style, ONE_SCREEN_STYLE),
-          render_header,
+          render_status_bar,
           h(OneScreenRoundTracker, game: @game),
           h('main.os-workspace', [
-            h('section.os-financial-pane', [
+            h('div.os-col.os-col-left', [
               card('Players', [render_players]),
-              card('Corporations', [render_corporations]),
+              card('Corporations', [render_share_legend, render_corporations], '', operating_order_hint),
             ]),
-            card('Shikoku Board', [h(Map, game: @game, opacity: 1.0,
-                                          tile_selector: @tile_selector)], 'os-map-card'),
-            card('Current Action', [
-              h('div.os-current-round', [@round_label]),
-              h('div.os-action-form', [@action_panel]),
-              h('div.os-tools', @controls),
-            ], 'os-action-card'),
+            h('div.os-col.os-col-center', [
+              card('Shikoku', [h('div.os-map', [h(Map, game: @game, opacity: 1.0, tile_selector: @tile_selector)])],
+                   'os-map-card'),
+              h('div.os-row', [
+                card(market_heading, [h('div.os-stock-zoom', [
+                                        h(StockMarket, game: @game, show_bank: false, embedded_layout: true),
+                                      ])], 'os-market-card'),
+                card('Trains · Phase', render_trains_and_phase, 'os-trains-card'),
+              ]),
+            ]),
+            h('div.os-col.os-col-right', [
+              card('Current action', [
+                render_action_header,
+                h('div.os-current-round', [@round_label]),
+                h('div.os-action-form', [@action_panel]),
+                h('div.os-tools', @controls),
+              ], 'os-action-card'),
+              card('Game log', [@game_log], 'os-log-card'),
+            ]),
           ]),
-          h('div.os-data-strip', [
-            card(market_heading, [h('div.os-stock-zoom', [
-                                    h(StockMarket, game: @game, show_bank: false, embedded_layout: true),
-                                  ])], 'os-market-card'),
-            card('Bank · Trains · Phases', render_bank_and_phases),
-            card('Tile Manifest', [h(TileManifest, game: @game, tile_selector: @tile_selector)], 'os-tile-card'),
-            card('Game Log', [@game_log], 'os-log-card'),
+          h('div.os-extra', [
+            details('Tile manifest', [h(TileManifest, game: @game, tile_selector: @tile_selector)]),
+            details('Full game info', [h(GameInfo, game: @game)]),
           ]),
         ])
+      end
+
+      # Snabberb's h reads a lone VNode in the props slot as a hash, so title
+      # (a String or a VNode) and body (an Array of children) go in as arrays.
+      def card(title, body, custom_class = '', right = nil)
+        selector = custom_class.empty? ? 'section.os-card' : "section.os-card.#{custom_class}"
+        props = custom_class.include?('os-market-card') ? { attrs: { id: 'os-market-dock' } } : {}
+        heading = [h('h2.os-card-title', [title])]
+        heading << right if right
+        h(selector, props, [
+          h('header.os-card-heading', heading),
+          h('div.os-card-body', body),
+        ])
+      end
+
+      def details(title, body)
+        h('details.os-details', [h(:summary, title), h('div.os-details-body', body)])
       end
 
       def market_heading
@@ -59,96 +99,290 @@ module View
           # and do not re-render AiPlayers or the engine on each expansion.
           `document.getElementById('os-market-dock').classList.toggle('os-market-expanded')`
         end
-        h('div.os-market-heading', [
-          h(:span, 'Stock Market'),
-          h(:button, {
+        h('span.os-market-heading', [
+          h(:span, 'Stock market'),
+          h('button.os-btn.os-btn--small', {
               attrs: { type: 'button', title: 'Expand or collapse the market' },
               on: { click: expand },
-            }, 'Expand / Close'),
+            }, 'Expand'),
         ])
       end
 
-      # Snabberb's h reads a lone VNode in the props slot as a hash, so title
-      # (a String or a VNode) and body (an Array of children) go in as arrays.
-      def card(title, body, custom_class = '')
-        selector = custom_class.empty? ? 'section.os-card' : "section.os-card.#{custom_class}"
-        props = custom_class.include?('os-market-card') ? { attrs: { id: 'os-market-dock' } } : {}
-        h(selector, props, [
-          h('header.os-card-heading', [title]),
-          h('div.os-card-body', body),
+      # ---- status bar ----
+
+      def round_text
+        round = @game.round
+        type = round.class.short_name
+        return 'Game over' if @game.finished
+        return "OR #{@game.turn}.#{round.round_num} of #{@game.operating_rounds}" if type == 'OR'
+
+        "#{type} #{@game.turn}"
+      end
+
+      def current_entity
+        @game.round.active_step&.current_entity
+      end
+
+      def acting_corporation
+        entity = current_entity
+        return unless entity
+
+        entity.corporation? ? entity : nil
+      end
+
+      def render_status_bar
+        entity = current_entity
+        step = @game.round.active_step
+        activity = if @game.finished
+                     'Final results'
+                   elsif entity
+                     [entity.name, step&.description].compact.join(' · ')
+                   else
+                     ''
+                   end
+        total = @game.class::BANK_CASH
+        bank = @game.bank.cash
+        pct = total.is_a?(Numeric) && total.positive? ? [[bank * 100 / total, 0].max, 100].min : 0
+
+        h('header.os-status', [
+          h('div.os-status-pills', [
+            h('span.os-pill.os-pill--round', round_text),
+            h('span.os-pill', "Phase #{@game.phase.name}"),
+            h('span.os-status-activity', activity),
+          ]),
+          h('div.os-bank', { attrs: { title: "Bank #{currency(bank)} of #{currency(total)}" } }, [
+            h('div.os-bank-row', [h(:span, 'Bank'), h('strong.os-num', currency(bank))]),
+            h('div.os-meter', [h('div.os-meter-fill', { style: { width: "#{pct}%" } })]),
+          ]),
         ])
       end
 
-      def render_header
-        current = @game.round.active_step&.current_entity
-        corp = current&.corporation || (current if current&.corporation?)
-        h('header.os-main-header', [
-          h('strong.os-brand', '1889 SHIKOKU'),
-          h('span', "#{@game.round.class.short_name} · Phase #{@game.phase.name} · Turn #{@game.turn}"),
-          h('span', "Active: #{current&.name || '—'}"),
-          corp ? h('span', "Corporation: #{corp.name}") : nil,
-        ].compact)
+      # ---- players ----
+
+      def seat_color(player)
+        SEAT_COLORS[@game.players.index(player) % SEAT_COLORS.size]
+      end
+
+      def ai_level(player)
+        @ai_seats[player.id.to_s]
       end
 
       def render_players
-        cols = %w[Player Cash Value Liquidity Shares Companies Certs Priority]
-        h('table.os-table', [
-          h(:thead, [h(:tr, cols.map { |c| h(:th, c) })]),
-          h(:tbody, @game.players.map do |player|
-            shares = share_count(@game.all_corporations.sum { |c| c.minor? ? 0 : num_shares_of(player, c) })
-            cells = [
-              player.name,
-              currency(player.cash),
-              currency(@game.player_value(player)),
-              currency(@game.liquidity(player)),
-              shares,
-              player.companies.map(&:sym).join(', '),
-              "#{@game.num_certs(player)}/#{@game.cert_limit}",
-              @game.priority_deal_player == player ? '●' : '',
-            ]
-            h(:tr, cells.map { |v| h(:td, v.to_s) })
-          end),
-        ])
+        priority = @game.priority_deal_player
+        active = @game.round.active_step&.current_entity
+        active_player = active&.player? ? active : active&.owner
+
+        h('div.os-players', @game.players.map do |player|
+          level = ai_level(player)
+          role = level ? "AI · #{level.to_s.capitalize}" : 'Human'
+          badges = [h("span.os-badge#{level ? '' : '.os-badge--human'}", role)]
+          badges << h('span.os-badge.os-badge--priority', 'Priority') if priority == player
+          holds = @game.corporations.select { |c| player.num_shares_of(c).positive? }
+          classes = player == active_player ? 'div.os-player.os-player--active' : 'div.os-player'
+
+          h(classes, [
+            h('div.os-player-head', [
+              h('span.os-avatar', { style: { background: seat_color(player) } }, initials(player.name)),
+              h('div.os-player-name', [h('strong', player.name), h('span.os-badges', badges)]),
+              h('div.os-player-cash', [h('strong.os-num', currency(player.cash)), h('span', 'cash')]),
+            ]),
+            h('div.os-player-stats', [
+              stat('Value', currency(@game.player_value(player))),
+              stat('Certs', "#{@game.num_certs(player)}/#{@game.cert_limit}"),
+              h('div.os-stat', [h('span', 'Holds'), h('span.os-holds', holds.map { |c| corp_chip(c, 'os-chip--sm') })]),
+            ]),
+          ])
+        end)
+      end
+
+      def stat(label, value)
+        h('div.os-stat', [h('span', label), h('strong.os-num', value)])
+      end
+
+      def initials(name)
+        words = name.to_s.split
+        letters = words.size > 1 ? words.first(2).map { |w| w[0] } : [name.to_s[0], name.to_s[-1]]
+        letters.join.upcase
+      end
+
+      # ---- corporations ----
+
+      def corp_chip(corp, extra = '')
+        selector = extra.empty? ? 'span.os-chip' : "span.os-chip.#{extra}"
+        h(selector, { style: { background: corp.color, color: corp.text_color }, attrs: { title: corp.full_name } },
+          corp.id)
+      end
+
+      def operating_order_hint
+        h('span.os-card-hint', 'OR order')
+      end
+
+      def render_share_legend
+        items = @game.players.map { |p| [p.name, seat_color(p)] } + [['Pool', POOL_COLOR], ['IPO', IPO_COLOR]]
+        h('div.os-legend', items.map do |label, color|
+          h('span.os-legend-item', [h('span.os-swatch', { style: { background: color } }), label])
+        end)
       end
 
       def render_corporations
-        cols = ['ID', 'Corporation', *@game.players.map(&:name),
-                'IPO', 'Pool', 'Par', 'Market', 'Cash', 'Trains', 'Tokens', 'Order', 'President']
-        h('table.os-table', [
-          h(:thead, [h(:tr, cols.map { |c| h(:th, c) })]),
-          h(:tbody, @game.all_corporations.map do |corp|
-            holders = @game.players.map do |player|
-              count = share_count(num_shares_of(player, corp))
-              corp.president?(player) ? "*#{count}" : count
-            end
-            operating_index = @game.operating_order.index(corp)
-            cells = [corp.id, corp.full_name, *holders,
-                     corp.respond_to?(:num_ipo_shares) ? corp.num_ipo_shares : '—',
-                     share_count(num_shares_of(@game.share_pool, corp)),
-                     corp.par_price ? currency(corp.par_price.price) : '—',
-                     corp.share_price ? currency(corp.share_price.price) : '—',
-                     currency(corp.cash),
-                     corp.trains.map(&:name).join(','),
-                     @game.token_string(corp),
-                     operating_index ? operating_index + 1 : '—',
-                     corp.owner&.name || '—']
-            h(:tr, [
-              h(:td, [h('span.os-corp-chip', { style: { backgroundColor: corp.color, color: corp.text_color } }, corp.id)]),
-              *cells.drop(1).map { |v| h(:td, v.to_s) },
-            ])
-          end),
+        acting = acting_corporation
+        order = @game.round.respond_to?(:entities) && @game.round.class.short_name == 'OR' ? @game.round.entities : []
+        corps = @game.corporations.sort_by { |c| [c.ipoed ? 0 : 1, order.index(c) || 99] }
+
+        h('div.os-corps', corps.map do |corp|
+          next render_unstarted(corp) unless corp.ipoed
+
+          classes = corp == acting ? 'div.os-corp.os-corp--active' : 'div.os-corp'
+          status = if corp == acting
+                     h('span.os-badge.os-badge--active', 'Operating')
+                   elsif (idx = order.index(corp))
+                     h('span.os-order', "##{idx + 1}")
+                   end
+          par = corp.par_price&.price
+          price = corp.share_price&.price
+          trend = if par && price
+                    diff = price - par
+                    arrow = if diff.positive?
+                              '▲'
+                            else
+                              diff.negative? ? '▼' : '•'
+                            end
+                    h("span.os-trend#{diff.negative? ? '.os-trend--down' : ''}", "#{arrow} par #{currency(par)}")
+                  end
+          trains = corp.trains.map { |t| h('span.os-train', t.name) }
+          trains = [h('span.os-no-train', 'no train')] if trains.empty?
+          tokens = corp.tokens.map do |t|
+            h('span.os-token', { style: { background: t.used ? corp.color : '#FFFFFF', borderColor: corp.color } })
+          end
+
+          h(classes, [
+            h('div.os-corp-head', [
+              corp_chip(corp),
+              h('div.os-corp-name', [h('strong', corp.full_name), h('span', "President #{corp.owner&.name || '—'}")]),
+              status,
+            ].compact),
+            h('div.os-corp-money', [
+              h('strong.os-num.os-price', price ? currency(price) : '—'),
+              trend,
+              h('span.os-corp-cash', ['cash ', h('strong.os-num', currency(corp.cash))]),
+            ].compact),
+            share_bar(corp),
+            h('div.os-corp-assets', [h('span.os-trains', trains), h('span.os-tokens', tokens)]),
+          ])
+        end)
+      end
+
+      def render_unstarted(corp)
+        h('div.os-corp.os-corp--unstarted', [
+          h('div.os-corp-head', [
+            corp_chip(corp),
+            h('div.os-corp-name', [h('span', corp.full_name)]),
+            h('span.os-muted', 'Not started'),
+          ]),
         ])
       end
 
-      def render_bank_and_phases
+      def share_bar(corp)
+        segments = @game.players.map { |p| [p.name, p.percent_of(corp), seat_color(p)] }
+        segments << ['Pool', @game.share_pool.percent_of(corp), POOL_COLOR]
+        segments << ['IPO', corp.ipo_shares.sum(&:percent), IPO_COLOR]
+        label = segments.reject { |_, pct, _| pct.zero? }.map { |name, pct, _| "#{name} #{pct}%" }.join(', ')
+        h('div.os-sharebar', { attrs: { role: 'img', 'aria-label': "Shares: #{label}" } },
+          segments.reject { |_, pct, _| pct.zero? }.map do |name, pct, color|
+            h('span.os-share', { style: { flexGrow: pct, background: color }, attrs: { title: "#{name} #{pct}%" } })
+          end)
+      end
+
+      # ---- trains & phase ----
+
+      def render_trains_and_phase
+        phases = @game.phase.phases
+        current = @game.phase.name
+        cur_idx = phases.index { |p| p[:name] == current } || 0
+        pills = phases.each_with_index.map do |ph, i|
+          state = if i < cur_idx
+                    'past'
+                  else
+                    i == cur_idx ? 'now' : 'next'
+                  end
+          h("span.os-phase.os-phase--#{state}", ph[:name])
+        end
+        info = phases[cur_idx] || {}
+        tiles = Array(info[:tiles]).map(&:to_s).join(', ')
+        summary = "Phase #{current}: train limit #{info[:train_limit]}, #{tiles} tiles, " \
+                  "#{info[:operating_rounds]} OR#{info[:operating_rounds] == 1 ? '' : 's'} per set."
+
+        upcoming = @game.depot.upcoming.group_by(&:name)
+        rows = upcoming.map do |name, trains|
+          unlimited = @game.class::TRAINS.find { |t| t[:name] == name }&.dig(:num).to_s == 'unlimited'
+          left = unlimited ? 'unlimited' : "#{trains.size} left"
+          h('div.os-depot-row', [
+            h('span.os-train.os-train--big', name),
+            h('strong.os-num', currency(trains.first.price)),
+            h('span.os-muted', left),
+          ])
+        end
+        rows << h('div.os-muted', 'No trains left in the depot') if rows.empty?
+        discarded = @game.depot.discarded.map(&:name)
+
         [
-          h('div.os-bank-summary', [
-            h(:div, "Bank Cash: #{currency(@game.bank_cash)}"),
-            h(:div, "Bank Broken: #{@game.bank.broken? ? 'YES' : 'No'}"),
-            h(:div, "Discarded Trains: #{@game.depot.discarded.map(&:name).join(', ')}"),
-          ]),
-          h(GameInfo, game: @game),
+          h('div.os-phases', pills),
+          h('p.os-note', summary),
+          h('div.os-depot', rows),
+          discarded.empty? ? nil : h('p.os-note', "Discarded: #{discarded.join(', ')}"),
+          @game.bank.broken? ? h('p.os-note.os-note--alert', 'The bank has broken.') : nil,
+        ].compact
+      end
+
+      # ---- action header ----
+
+      def render_action_header
+        entity = current_entity
+        return h(:span) if @game.finished || !entity
+
+        sub = []
+        if entity.corporation?
+          sub << "#{currency(entity.cash)} treasury"
+          sub << "#{entity.trains.size} train#{entity.trains.size == 1 ? '' : 's'}"
+        elsif entity.respond_to?(:cash)
+          sub << "#{currency(entity.cash)} cash"
+        end
+        owner = entity.corporation? ? entity.owner : entity
+        if owner&.player? && (level = ai_level(owner))
+          sub << "played by AI (#{level.to_s.capitalize})"
+        end
+
+        badge = if entity.corporation?
+                  corp_chip(entity, 'os-chip--lg')
+                elsif entity.player?
+                  h('span.os-avatar.os-avatar--lg', { style: { background: seat_color(entity) } }, initials(entity.name))
+                end
+
+        children = [
+          h('div.os-action-head', [
+            badge,
+            h('div.os-action-title', [h('strong', entity.respond_to?(:full_name) ? entity.full_name : entity.name),
+                                      h('span', sub.join(' · '))]),
+          ].compact),
         ]
+        children << render_or_steps if @game.round.class.short_name == 'OR'
+        h('div.os-action-intro', children)
+      end
+
+      def render_or_steps
+        description = @game.round.active_step&.description.to_s
+        current = OR_STEPS.index { |_, re| re.match?(description) }
+        h('ol.os-steps', { attrs: { 'aria-label': 'Operating steps' } }, OR_STEPS.each_with_index.map do |(name, _), i|
+          state = if current.nil?
+                    'next'
+                  elsif i < current
+                    'done'
+                  else
+                    i == current ? 'now' : 'next'
+                  end
+          attrs = state == 'now' ? { 'aria-current': 'step' } : {}
+          h("li.os-step.os-step--#{state}", { attrs: attrs }, [h('span.os-step-dot'), name])
+        end)
       end
 
       def share_count(value)

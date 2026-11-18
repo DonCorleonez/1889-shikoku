@@ -1,62 +1,47 @@
 # frozen_string_literal: true
 
-require 'view/create_game'
-require 'view/logo'
+require 'view/shikoku_style'
 
 module View
+  # Top bar for the 1889 Shikoku build. The #header id is kept because
+  # GamePage scrolls past it to the game menu.
   class Navigation < Snabberb::Component
     needs :app_route, default: nil, store: true
     needs :user, default: nil, store: true
 
     def render
-      other_links = [item('About', '/about')]
+      links = [
+        item('Tutorial', '/tutorial?action=1'),
+        import_link,
+      ]
+      links << item('Admin', '/admin') if @user&.dig('settings', 'admin')
 
-      if @user
-        other_links << item('Admin', '/admin') if @user.dig('settings', 'admin')
-        other_links << item("Profile (#{@user['name']})", "/profile/#{@user['id']}")
-      else
-        other_links << item('Signup', '/signup')
-        other_links << item('Login', '/login')
-      end
+      brand = h('a.sk-brand', { attrs: { href: '/', title: '1889 Shikoku: home' } }, [
+        h('span.sk-brand-year', '1889'),
+        h('span.sk-brand-kanji', { attrs: { lang: 'ja' } }, '四国'),
+        h('span.sk-brand-name', 'Shikoku'),
+      ])
 
-      props = {
-        style: {
-          display: 'flex',
-          padding: '0.75vmin 0',
-          boxShadow: '0 2px 0 0 gainsboro',
-          justifyContent: 'space-between',
-        },
-      }
-
-      h('div#header', props, [
-        h(Logo),
-        render_other_links(other_links),
+      h('header#header.sk-topbar', [
+        h(:style, SHIKOKU_SHELL_STYLE),
+        brand,
+        h('nav.sk-nav', { attrs: { 'aria-label': 'Main' } }, links),
       ])
     end
 
-    def item(name, href)
-      props = {
-        attrs: {
-          href: href,
-        },
-        style: {
-          margin: '0 0.5rem',
-        },
-      }
-      h(:a, props, name)
+    # Opens the create-game form on its JSON tab, where a save file is pasted
+    # or uploaded.
+    def import_link
+      open_import = lambda do |event|
+        Native(event).preventDefault
+        store(:mode, :json, skip: true)
+        store(:app_route, '/new_game')
+      end
+      h(:a, { attrs: { href: '/new_game' }, on: { click: open_import } }, 'Import save')
     end
 
-    def render_other_links(other_links)
-      children = other_links.map do |link|
-        link
-      end
-
-      nav_props = {
-        style: {
-          margin: 'auto 0',
-        },
-      }
-      h('div#nav', nav_props, children)
+    def item(name, href)
+      h(:a, { attrs: { href: href } }, name)
     end
   end
 end

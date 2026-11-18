@@ -7,7 +7,7 @@ name: Self-host image (arm64)
 
 on:
   push:
-    branches: [ main, 'debloat/**', 'deploy/**' ]
+    branches: [ main, 'debloat/**', 'deploy/**', 'ui/**' ]
   workflow_dispatch:
 
 permissions:
@@ -64,6 +64,24 @@ jobs:
         # the compiled 1889 title bundle must exist
         $COMPOSE exec -T web sh -c 'ls /public/assets/' | tee /tmp/assets.txt
         grep -q 'g_1889' /tmp/assets.txt
+
+    - name: Screenshots
+      continue-on-error: true
+      run: |
+        mkdir -p /tmp/shots-tool && cp .github/screenshots.mjs /tmp/shots-tool/
+        cd /tmp/shots-tool
+        npm init -y > /dev/null
+        npm install --no-audit --no-fund playwright@1.49.1 > /dev/null
+        npx playwright install --with-deps chromium > /dev/null
+        node screenshots.mjs "$GITHUB_WORKSPACE/shots"
+
+    - name: Upload screenshots
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: screenshots
+        path: shots/
+        if-no-files-found: ignore
 
     - name: Logs
       if: always()

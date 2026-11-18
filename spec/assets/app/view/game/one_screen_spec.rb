@@ -70,20 +70,21 @@ module View
       let(:fixture) { 'spec/fixtures/1889/314.json' }
 
       # Lib::Params reads window.location through URLSearchParams, neither of
-      # which exists in MiniRacer, so stub both to turn on ?onescreen=1.
-      let(:one_screen_shim) do
+      # which exists in MiniRacer; without the shim every param is nil, which is
+      # the default (one-screen) case. The shim turns on ?classic=1.
+      let(:classic_shim) do
         <<~JS
           var window = globalThis.window || globalThis;
-          window.location = window.location || { search: '?onescreen=1', hash: '' };
+          window.location = window.location || { search: '?classic=1', hash: '' };
           globalThis.URLSearchParams = function() {};
-          globalThis.URLSearchParams.prototype.get = function(k) { return k === 'onescreen' ? '1' : null; };
+          globalThis.URLSearchParams.prototype.get = function(k) { return k === 'classic' ? '1' : null; };
           globalThis.URLSearchParams.prototype.getAll = function() { return []; };
         JS
       end
 
       before(:all) { @assets = Assets.new }
 
-      def render_game(file, action_count, one_screen: true)
+      def render_game(file, action_count, classic: false)
         data = JSON.parse(File.read(file))
         data['actions'] = data['actions'].take(action_count) if action_count
         data[:loaded] = true
@@ -93,39 +94,39 @@ module View
           user: data['user'].merge(settings: { consent: true }),
         }
         script = Snabberb.html_script('assets/app/app.rb', **needs)
-        script = one_screen_shim + script if one_screen
+        script = classic_shim + script if classic
         @assets.context(:all).eval(script)
       end
 
-      it 'is not rendered without ?onescreen=1' do
-        html = render_game(fixture, 6, one_screen: false)
+      it 'shows the classic layout with ?classic=1' do
+        html = render_game(fixture, 6, classic: true)
         expect(html).not_to include('shikoku-one-screen')
         expect(html).to include('1889: Phase 2 - Stock Round 1')
       end
 
-      it 'renders the auction workspace' do
+      it 'is the default screen and renders the auction workspace' do
         html = render_game(fixture, 0)
-        expect(html).to include('id="shikoku-one-screen"', '1889 SHIKOKU', 'ISR · Phase 2 · Turn 1',
-                                'Players', 'Corporations', 'Shikoku Board', 'Current Action',
-                                'Tile Manifest', 'Game Log', 'Takamatsu E-Railroad')
-        expect(html).to include('os-round--current', 'ISR 1')
+        expect(html).to include('id="shikoku-one-screen"', 'ISR 1', 'Phase 2',
+                                'Players', 'Corporations', 'Shikoku', 'Current action',
+                                'Tile manifest', 'Game log', 'Takamatsu E-Railroad')
+        expect(html).to include('os-round--current')
       end
 
       it 'renders the stock market dock with its expand button' do
         html = render_game(fixture, 6)
-        expect(html).to include('id="os-market-dock"', 'Expand / Close', 'os-stock-zoom')
-        expect(html).to include('SR · Phase 2 · Turn 1')
+        expect(html).to include('id="os-market-dock"', 'Expand', 'os-stock-zoom', 'SR 1')
       end
 
-      it 'renders an Operating Round with the corporation in the header' do
+      it 'renders an Operating Round with the acting corporation highlighted' do
         html = render_game(fixture, 21)
-        expect(html).to include('OR · Phase 2 · Turn 1', 'Corporation: KO', 'Lay/Upgrade Track')
-        expect(html).to include('os-round--complete', 'OR 1.1')
+        expect(html).to include('OR 1.1 of 1', 'Lay/Upgrade Track', 'os-corp--active', 'Operating')
+        expect(html).to include('os-step--now', 'os-round--complete')
+        expect(html).to include('os-sharebar', 'aria-label="Shares: ')
       end
 
       it 'renders a finished game' do
         html = render_game(fixture, nil)
-        expect(html).to include('id="shikoku-one-screen"', 'Game Over')
+        expect(html).to include('id="shikoku-one-screen"', 'Game over', 'Game Over')
       end
 
       it 'renders an older hotseat save' do

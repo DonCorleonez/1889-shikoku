@@ -58,12 +58,15 @@ describe 'Assets' do
   end
 
   describe '#html' do
-    it 'renders logged out' do
-      expect(render).to include('18xx.Games')
+    it 'renders the 1889 home page' do
+      html = render
+      expect(html).to include('四国', 'Build the railways of Shikoku.', 'Saved games', 'New game',
+                              'Start game · 3 players', 'Tutorial', 'Import save')
+      expect(html).not_to include('Signup', 'Login')
     end
 
     it 'renders home logged in' do
-      expect(render(user: { name: 'toby', settings: { consent: true } })).to include('Profile (toby)')
+      expect(render(user: { name: 'toby', settings: { consent: true } })).to include('Saved games')
     end
 
     it 'consent logged in' do
