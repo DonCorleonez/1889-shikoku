@@ -208,7 +208,7 @@ module View
           }, label)
       end
 
-      children = [
+      top = [
         h('span.sk-seat-no', { attrs: { 'aria-hidden': 'true' } }, n.to_s),
         h('label.sk-field.sk-field--grow', [
           "Seat #{n} name",
@@ -218,29 +218,32 @@ module View
               on: { input: ->(e) { update_seat(index, { 'name' => Native(e).target.value }, skip: true) } },
             }),
         ]),
+      ]
+      controls = [
         h('div.sk-seg', { attrs: { role: 'group', 'aria-label': "Seat #{n} is played by" } }, [
           segment.call('Human', false),
           segment.call('AI', true),
         ]),
       ]
       if seat['ai']
-        children << h('label.sk-field', [
-          'Level',
-          h(:select, {
-              on: { change: ->(e) { update_seat(index, 'level' => Native(e).target.value) } },
-            }, LEVELS.map do |level|
-              h(:option, { attrs: { value: level, selected: seat['level'] == level } }, level.capitalize)
-            end),
-        ])
+        controls << h(:select, {
+                        attrs: { 'aria-label': "Seat #{n} AI level" },
+                        on: { change: ->(e) { update_seat(index, 'level' => Native(e).target.value) } },
+                      }, LEVELS.map do |level|
+                        h(:option, { attrs: { value: level, selected: seat['level'] == level } }, level.capitalize)
+                      end)
       end
       if total > MIN_SEATS
-        children << h('button.sk-btn.sk-btn--icon', {
+        controls << h('button.sk-btn.sk-btn--icon.sk-seat-remove', {
                         attrs: { type: 'button', 'aria-label': "Remove seat #{n}" },
                         on: { click: -> { remove_seat(index) } },
                       }, [close_icon])
       end
 
-      h('div.sk-seat', { key: "sk_seat_#{index}" }, children)
+      h('div.sk-seat', { key: "sk_seat_#{index}" }, [
+        h('div.sk-seat-top', top),
+        h('div.sk-seat-controls', controls),
+      ])
     end
 
     def add_seat
@@ -272,7 +275,7 @@ module View
 
       store(:sk_error, nil, skip: true)
       # Player ids are their seat index, as in View::CreateGame.
-      ai_ids = list.each_index.select { |i| list[i]['ai'] }
+      ai_ids = (0...list.size).select { |i| list[i]['ai'] }
       levels = ai_ids.to_h { |i| [i.to_s, list[i]['level'] || 'normal'] }
 
       create_hotseat(

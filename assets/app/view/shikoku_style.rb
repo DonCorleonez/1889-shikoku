@@ -70,7 +70,11 @@ module View
     #sk-home .sk-save-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
     #sk-home .sk-empty { padding: 18px; border: 1px dashed var(--sk-line-2); border-radius: 12px; color: var(--sk-muted); font: 500 14px/1.5 var(--sk-sans); }
     #sk-home .sk-new { flex: 1 1 380px; max-width: 460px; display: flex; flex-direction: column; gap: 16px; }
-    #sk-home .sk-seat { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px; padding: 12px; border: 1px solid var(--sk-line); border-radius: 12px; }
+    #sk-home .sk-seat { display: flex; flex-direction: column; gap: 10px; padding: 12px; border: 1px solid var(--sk-line); border-radius: 12px; }
+    #sk-home .sk-seat-top { display: flex; align-items: flex-end; gap: 10px; }
+    #sk-home .sk-seat-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding-left: 44px; }
+    #sk-home .sk-seat-controls select { width: auto; min-width: 120px; }
+    #sk-home .sk-seat-remove { margin-left: auto; }
     #sk-home .sk-seat-no { width: 34px; height: 34px; border-radius: 999px; background: var(--sk-faint); display: inline-flex; align-items: center; justify-content: center; font: 700 13px/1 var(--sk-sans); align-self: center; }
     #sk-home label.sk-field { display: flex; flex-direction: column; gap: 4px; font: 500 12px/1 var(--sk-sans); color: var(--sk-muted); }
     #sk-home .sk-field--grow { flex: 1 1 150px; }

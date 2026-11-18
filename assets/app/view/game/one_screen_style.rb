@@ -131,6 +131,9 @@ module View
       #shikoku-one-screen .os-map { display: flex; }
       #shikoku-one-screen .os-map > div { max-width: none; margin: auto; }
 
+      #shikoku-one-screen #map_controls { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px; }
+      #shikoku-one-screen #map_zoom { padding: 8px 8px 0; }
+
       /* market */
       #shikoku-one-screen .os-market-heading { display: inline-flex; align-items: center; gap: 10px; }
       #shikoku-one-screen .os-market-card .os-card-body { overflow: auto; max-height: 340px; }
@@ -185,6 +188,14 @@ module View
       #shikoku-one-screen button:focus-visible, #shikoku-one-screen a:focus-visible, #shikoku-one-screen summary:focus-visible {
         outline: 2px solid var(--sk-accent); outline-offset: 2px;
       }
+
+      /* the game tab bar (Game, Entities, Map, ...) rendered by GamePage above this view */
+      #game [aria-label="Game"] {
+        background: var(--sk-card) !important; color: var(--sk-ink) !important; box-shadow: none !important;
+        border-top: 0 !important; border-bottom: 1px solid var(--sk-line) !important; font: 600 15px/1 var(--sk-sans) !important;
+        margin-bottom: 12px !important;
+      }
+      #game [aria-label="Game"] a { color: var(--sk-ink) !important; }
 
       /* the AI seat bar, mounted once by GamePage just above this view */
       #game #ai_players {

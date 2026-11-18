@@ -2,6 +2,7 @@
 
 # backtick_javascript: true
 
+require 'lib/storage'
 require 'view/share_calculation'
 require 'view/game/map'
 require 'view/game/stock_market'
@@ -41,6 +42,7 @@ module View
       ].freeze
 
       def render
+        ensure_fitting_map_zoom
         h('div#shikoku-one-screen', [
           h(:style, ONE_SCREEN_STYLE),
           render_status_bar,
@@ -75,6 +77,32 @@ module View
             details('Full game info', [h(GameInfo, game: @game)]),
           ]),
         ])
+      end
+
+      # The map is drawn in absolute pixels (the tile selector is positioned in
+      # them too), so it is fitted with the map's own zoom setting rather than
+      # CSS scaling. Only when the player has not chosen a zoom yet; the
+      # +/- buttons above the map still change and remember it.
+      def ensure_fitting_map_zoom
+        return unless `typeof window !== 'undefined' && typeof localStorage !== 'undefined'`
+        return if Lib::Storage['map_zoom']
+
+        xs = @game.hexes.map(&:x).uniq.size
+        ys = @game.hexes.map(&:y).uniq.size
+        natural = if @game.layout == :flat
+                    (((xs * 1.5) + 0.5) * Map::EDGE_LENGTH) + (2 * Map::GAP)
+                  else
+                    ((((xs / 2) + 0.5) * Map::SIDE_TO_SIDE) + (2 * Map::GAP)) + 1
+                  end
+        width = `window.innerWidth`.to_i
+        # side columns + gaps + card padding on wide screens; page padding on narrow ones
+        available = width >= 1280 ? width - 860 : width - 80
+        zoom = available / natural
+        zoom = 1.0 if zoom > 1.0
+        zoom = 0.35 if zoom < 0.35 || ys.zero?
+        zoom = (zoom * 100).floor / 100.0
+        Lib::Storage['map_zoom'] = zoom
+        store(:map_zoom, zoom, skip: true)
       end
 
       # Snabberb's h reads a lone VNode in the props slot as a hash, so title
