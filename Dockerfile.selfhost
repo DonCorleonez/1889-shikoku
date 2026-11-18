@@ -26,7 +26,19 @@ RUN case "${TARGETARCH:-$(dpkg --print-architecture)}" in \
 
 WORKDIR /18xx
 COPY Gemfile Gemfile.lock* ./
-RUN bundle config set without 'test development' && bundle install --jobs 4
+# Gemfile.lock pins mini_racer 0.6.2 / libv8-node 16.10, which has no prebuilt
+# ARM64 binary (building V8 from source fails). On arm64 only, move just those
+# two gems to the newest release, which ships an aarch64-linux binary; every
+# other gem stays at the locked version. lib/js_context.rb already handles
+# newer V8 snapshots. x86_64 builds keep the exact upstream lock.
+RUN bundle config set without 'test development' \
+    && arch="${TARGETARCH:-$(dpkg --print-architecture)}" \
+    && if [ "$arch" = arm64 ]; then \
+         bundle lock --add-platform aarch64-linux \
+         && bundle lock --update mini_racer libv8-node --conservative \
+         && grep -E '^    (mini_racer|libv8-node) ' Gemfile.lock; \
+       fi \
+    && bundle install --jobs 4
 
 COPY . .
 ARG GIT_REV=selfhost

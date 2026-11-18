@@ -29,6 +29,11 @@ jobs:
         echo "POSTGRES_PASSWORD=$(openssl rand -hex 24)" > .env
         echo "WEB_PORT=8189" >> .env
 
+    - name: Probe libv8-node platforms
+      continue-on-error: true
+      run: |
+        docker run --rm ruby:3.4 sh -c 'gem list "^(libv8-node|mini_racer)$" --remote --all' | cut -c1-600
+
     - name: Build
       run: $COMPOSE build
 
