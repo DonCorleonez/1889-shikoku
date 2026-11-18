@@ -21,6 +21,7 @@ module View
 
       needs :game
       needs :tile_selector, default: nil, store: true
+      needs :map_zoom, default: nil, store: true
       needs :action_panel
       needs :round_label
       needs :controls
