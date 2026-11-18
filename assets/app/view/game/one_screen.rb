@@ -84,7 +84,9 @@ module View
       # CSS scaling. Only when the player has not chosen a zoom yet; the
       # +/- buttons above the map still change and remember it.
       def ensure_fitting_map_zoom
-        return unless `typeof window !== 'undefined' && typeof localStorage !== 'undefined'`
+        # 0 during server-side rendering, where there is no real window
+        width = `(typeof window !== 'undefined' && typeof localStorage !== 'undefined' && window.innerWidth) || 0`
+        return unless width.positive?
         return if Lib::Storage['map_zoom']
 
         xs = @game.hexes.map(&:x).uniq.size
@@ -94,7 +96,6 @@ module View
                   else
                     ((((xs / 2) + 0.5) * Map::SIDE_TO_SIDE) + (2 * Map::GAP)) + 1
                   end
-        width = `window.innerWidth`.to_i
         # side columns + gaps + card padding on wide screens; page padding on narrow ones
         available = width >= 1280 ? width - 860 : width - 80
         zoom = available / natural
