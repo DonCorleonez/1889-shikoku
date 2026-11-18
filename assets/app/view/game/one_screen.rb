@@ -218,9 +218,11 @@ module View
       end
 
       def render_share_legend
-        items = @game.players.map { |p| [p.name, seat_color(p)] } + [['Pool', POOL_COLOR], ['IPO', IPO_COLOR]]
-        h('div.os-legend', items.map do |label, color|
-          h('span.os-legend-item', [h('span.os-swatch', { style: { background: color } }), label])
+        items = @game.players.map { |p| { label: p.name, color: seat_color(p) } }
+        items << { label: 'Pool', color: POOL_COLOR }
+        items << { label: 'IPO', color: IPO_COLOR }
+        h('div.os-legend', items.map do |item|
+          h('span.os-legend-item', [h('span.os-swatch', { style: { background: item[:color] } }), item[:label]])
         end)
       end
 
@@ -283,13 +285,15 @@ module View
       end
 
       def share_bar(corp)
-        segments = @game.players.map { |p| [p.name, p.percent_of(corp), seat_color(p)] }
-        segments << ['Pool', @game.share_pool.percent_of(corp), POOL_COLOR]
-        segments << ['IPO', corp.ipo_shares.sum(&:percent), IPO_COLOR]
-        label = segments.reject { |_, pct, _| pct.zero? }.map { |name, pct, _| "#{name} #{pct}%" }.join(', ')
+        holders = @game.players.map { |p| { name: p.name, pct: p.percent_of(corp), color: seat_color(p) } }
+        holders << { name: 'Pool', pct: @game.share_pool.percent_of(corp), color: POOL_COLOR }
+        holders << { name: 'IPO', pct: corp.ipo_shares.sum(&:percent), color: IPO_COLOR }
+        held = holders.select { |seg| seg[:pct].to_i.positive? }
+        label = held.map { |seg| "#{seg[:name]} #{seg[:pct]}%" }.join(', ')
         h('div.os-sharebar', { attrs: { role: 'img', 'aria-label': "Shares: #{label}" } },
-          segments.reject { |_, pct, _| pct.zero? }.map do |name, pct, color|
-            h('span.os-share', { style: { flexGrow: pct, background: color }, attrs: { title: "#{name} #{pct}%" } })
+          held.map do |seg|
+            h('span.os-share', { style: { flexGrow: seg[:pct], background: seg[:color] },
+                                 attrs: { title: "#{seg[:name]} #{seg[:pct]}%" } })
           end)
       end
 

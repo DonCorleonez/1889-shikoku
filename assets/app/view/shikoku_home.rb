@@ -50,9 +50,7 @@ module View
 
     def render_hero(latest)
       actions = []
-      if latest
-        actions << h('a.sk-btn.sk-btn--primary', { attrs: { href: "/hotseat/#{latest['id']}" } }, 'Continue last game')
-      end
+      actions << h('a.sk-btn.sk-btn--primary', { attrs: { href: "/hotseat/#{latest['id']}" } }, 'Continue last game') if latest
       actions << h('a.sk-btn', { attrs: { href: '#sk-new' } }, 'New game')
       actions << h('a.sk-btn', { attrs: { href: '/tutorial?action=1' } }, 'Play the tutorial')
 
@@ -297,8 +295,15 @@ module View
     def svg_icon(paths, color = 'currentColor')
       h(:svg, {
           attrs: {
-            width: 18, height: 18, viewBox: '0 0 24 24', fill: 'none', stroke: color,
-            'stroke-width': 2, 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'aria-hidden': 'true'
+            width: 18,
+            height: 18,
+            viewBox: '0 0 24 24',
+            fill: 'none',
+            stroke: color,
+            'stroke-width': 2,
+            'stroke-linecap': 'round',
+            'stroke-linejoin': 'round',
+            'aria-hidden': 'true',
           },
         }, paths.map { |d| h(:path, { attrs: { d: d } }) })
     end
