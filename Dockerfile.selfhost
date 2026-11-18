@@ -38,9 +38,12 @@ RUN bundle config set without 'test development' \
          && bundle lock --update mini_racer libv8-node --conservative \
          && grep -E '^    (mini_racer|libv8-node) ' Gemfile.lock; \
        fi \
-    && bundle install --jobs 4
+    && bundle install --jobs 4 \
+    && cp Gemfile.lock /tmp/Gemfile.lock.resolved
 
 COPY . .
+# keep the lockfile that was actually installed above (COPY restores the repo copy)
+RUN cp /tmp/Gemfile.lock.resolved Gemfile.lock
 ARG GIT_REV=selfhost
 RUN GIT_REV=$GIT_REV bundle exec rake selfhost_precompile
 
