@@ -11,7 +11,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write   # screenshots are pushed to ci-shots/<branch>
   packages: write
 
 jobs:
@@ -82,6 +82,19 @@ jobs:
         name: screenshots
         path: shots/
         if-no-files-found: ignore
+
+    - name: Push screenshots to ci-shots/<branch>
+      if: always() && github.event_name != 'pull_request'
+      continue-on-error: true
+      run: |
+        [ -d shots ] && [ -n "$(ls -A shots)" ] || exit 0
+        ref=$(echo "${{ github.ref_name }}" | tr '/' '-')
+        cd shots
+        echo "${GITHUB_SHA}" > COMMIT
+        git init -q && git checkout -q -b shots
+        git add -A
+        git -c user.name=ci -c user.email=ci@users.noreply.github.com commit -qm "screenshots for ${GITHUB_SHA::7}"
+        git push -fq "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" "shots:refs/heads/ci-shots/$ref"
 
     - name: Logs
       if: always()
