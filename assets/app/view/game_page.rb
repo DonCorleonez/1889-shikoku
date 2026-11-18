@@ -429,7 +429,7 @@ module View
       h(:h4, description)
     end
 
-    def render_action
+    def render_action(embedded = false)
       return h(Game::GameEnd) if @game.finished
 
       if current_entity_actions.include?('discard_train') &&
@@ -446,35 +446,35 @@ module View
       case @round
       when Engine::Round::Stock
         if !(%w[place_token lay_tile remove_token] & current_entity_actions).empty?
-          h(Game::Map, game: @game)
+          embedded ? h(:div, 'Select a legal hex on the persistent board') : h(Game::Map, game: @game)
         else
-          h(Game::Round::Stock, game: @game)
+          h(Game::Round::Stock, game: @game, embedded_layout: embedded)
         end
       when Engine::Round::Operating
         if current_entity_actions.include?('merge')
           h(Game::Round::Merger, game: @game)
         elsif current_entity_actions.include?('buy_shares') && @game.current_entity&.player?
-          h(Game::Round::Stock, game: @game)
+          h(Game::Round::Stock, game: @game, embedded_layout: embedded)
         elsif current_entity_actions.include?('bid')
-          h(Game::Round::Auction, game: @game, user: @user)
+          h(Game::Round::Auction, game: @game, user: @user, embedded_layout: embedded)
         else
-          h(Game::Round::Operating, game: @game)
+          h(Game::Round::Operating, game: @game, embedded_layout: embedded)
         end
       when Engine::Round::Choices
         h(Game::Round::Choices, game: @game)
       when Engine::Round::Auction,
            Engine::Round::Draft
-        h(Game::Round::Auction, game: @game, user: @user)
+        h(Game::Round::Auction, game: @game, user: @user, embedded_layout: embedded)
       when Engine::Round::Merger
         if !(%w[buy_train scrap_train reassign_trains] & current_entity_actions).empty? &&
               @game.train_actions_always_use_operating_round_view?
-          h(Game::Round::Operating, game: @game)
+          h(Game::Round::Operating, game: @game, embedded_layout: embedded)
         else
           h(Game::Round::Merger, game: @game)
         end
       else
         if @round.stock?
-          h(Game::Round::Stock, game: @game)
+          h(Game::Round::Stock, game: @game, embedded_layout: embedded)
         elsif @round.unordered?
           h(Game::Round::Unordered, game: @game, user: @user, hotseat: hotseat_or_master)
         end
@@ -487,6 +487,7 @@ module View
 
     def render_game
       @round = @game.round
+      return render_one_screen if shikoku_one_screen?
 
       children = []
       children << render_round
@@ -505,6 +506,35 @@ module View
       children << render_action
 
       h('div.game', children)
+    end
+
+    # Opt-in with ?onescreen=1 on a 1889 game URL. Never persisted in hs_* saves.
+    def shikoku_one_screen?
+      Lib::Params['onescreen'].to_s == '1' && @game.class.display_title.include?('1889')
+    end
+
+    def render_one_screen
+      controls = [
+        h(Game::HistoryAndUndo, last_action_id: @last_action_id),
+        h(Game::EntityOrder, round: @round),
+      ]
+      unless @game.finished
+        controls << h(Game::Abilities, user: @user, game: @game)
+        controls << h(Game::Help, game: @game)
+        controls << if @game.round.unordered? && hotseat_or_master
+                      h(Game::MasterPass)
+                    else
+                      h(Game::Pass, actions: current_entity_actions)
+                    end
+      end
+      h(Game::OneScreen,
+        game: @game,
+        tile_selector: @tile_selector,
+        round_label: render_round,
+        action_panel: render_action(true),
+        controls: controls,
+        game_log: h(Game::GameLog, user: @user, scroll_pos: @scroll_pos,
+                                   chat_input: @chat_input))
     end
 
     def current_entity_actions
