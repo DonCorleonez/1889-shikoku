@@ -35,7 +35,9 @@ module View
     def current_theme
       return @sk_theme if @sk_theme
 
-      theme = `(typeof document !== 'undefined' && document.documentElement.getAttribute('data-theme')) || 'light'`
+      # server-side rendering has a stub document without documentElement
+      theme = `(typeof document !== 'undefined' && document.documentElement &&
+                document.documentElement.getAttribute('data-theme')) || 'light'`
       theme == 'dark' ? 'dark' : 'light'
     end
 
