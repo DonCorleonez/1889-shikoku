@@ -104,17 +104,23 @@ module View
         expect(html).to include('1889: Phase 2 - Stock Round 1')
       end
 
-      it 'is the default screen and renders the auction workspace' do
+      it 'is the default screen and renders the auction on the game table' do
         html = render_game(fixture, 0)
         expect(html).to include('id="shikoku-one-screen"', 'ISR 1', 'Phase 2',
                                 'Players', 'Corporations', 'Shikoku', 'Current action',
-                                'Tile manifest', 'Latest moves', 'Full game log', 'Takamatsu E-Railroad')
-        expect(html).to include('os-round--current')
+                                'Tile manifest', 'Game log', 'Full game log', 'Takamatsu E-Railroad')
+        expect(html).to include('os-round--current', 'os-table', 'os-rail-left', 'os-rail-right')
       end
 
-      it 'renders the stock market dock with its expand button' do
+      it 'shows whose turn it is in the action bar' do
+        html = render_game(fixture, 0)
+        expect(html).to include('os-dock', 'os-turn', 'role="status"')
+      end
+
+      it 'switches the board between the map and the stock market' do
         html = render_game(fixture, 6)
-        expect(html).to include('id="os-market-dock"', 'Expand', 'os-stock-zoom', 'SR 1')
+        expect(html).to include('id="os-board"', 'data-view="map"', 'data-view="market"', 'Stock market',
+                                'aria-pressed="true"', 'os-board-pane--market', 'os-stock-zoom', 'SR 1')
       end
 
       it 'renders an Operating Round with the acting corporation highlighted' do

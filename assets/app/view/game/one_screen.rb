@@ -42,37 +42,29 @@ module View
         { label: 'Trains', word: 'train' },
       ].freeze
 
+      # Game-table layout: the board fills the middle of the screen with the
+      # action bar under it, companies on the left, players and a running
+      # game log on the right. On narrow screens the parts stack, board first.
       def render
         ensure_fitting_map_zoom
         h('div#shikoku-one-screen', [
           h(:style, ONE_SCREEN_STYLE),
           render_status_bar,
           h(OneScreenRoundTracker, game: @game),
-          h('div.os-band', [
-            card('Players', [render_players], 'os-players-card'),
-            card('Latest moves', [render_latest_moves], 'os-latest-card',
-                 h('a.os-card-link', { attrs: { href: '#os-full-log' }, on: { click: ->(e) { open_full_log(e) } } },
-                   'Full log')),
-          ]),
-          h('main.os-workspace', [
-            h('div.os-col.os-col-left', [
-              card('Corporations', [render_share_legend, render_corporations], '', operating_order_hint),
+          h('div.os-table', [
+            h('div.os-stage', [
+              render_board,
+              render_dock,
+            ]),
+            h('aside.os-rail.os-rail-right', { attrs: { 'aria-label': 'Players and game log' } }, [
+              card('Players', [render_players], 'os-players-card'),
+              card('Game log', [render_feed], 'os-feed-card',
+                   h('a.os-card-link', { attrs: { href: '#os-full-log' }, on: { click: ->(e) { open_full_log(e) } } },
+                     'Full log')),
+            ]),
+            h('aside.os-rail.os-rail-left', { attrs: { 'aria-label': 'Corporations and trains' } }, [
+              card('Corporations', [render_share_legend, render_corporations], 'os-corps-card', operating_order_hint),
               card('Trains · Phase', render_trains_and_phase, 'os-trains-card'),
-            ]),
-            h('div.os-col.os-col-center', [
-              card('Shikoku', [h('div.os-map', [h(Map, game: @game, opacity: 1.0, tile_selector: @tile_selector)])],
-                   'os-map-card'),
-              card(market_heading, [h('div.os-stock-zoom', [
-                                      h(StockMarket, game: @game, show_bank: false, embedded_layout: true),
-                                    ])], 'os-market-card'),
-            ]),
-            h('div.os-col.os-col-right', [
-              card('Current action', [
-                render_action_header,
-                h('div.os-current-round', [@round_label]),
-                h('div.os-action-form', [@action_panel]),
-                h('div.os-tools', @controls),
-              ], 'os-action-card'),
             ]),
           ]),
           h('div.os-extra', [
@@ -91,21 +83,79 @@ module View
         }
       end
 
-      # ---- latest moves: the last few log lines, newest first ----
+      # ---- board: map or stock market, switched in place ----
 
-      LATEST_COUNT = 6
+      def render_board
+        h('section.os-board', { attrs: { id: 'os-board', 'aria-label': 'Board' } }, [
+          h('div.os-board-bar', [
+            h('div.os-seg', { attrs: { role: 'group', 'aria-label': 'Board view' } }, [
+              board_switch_button('map', 'Map', true),
+              board_switch_button('market', 'Stock market', false),
+            ]),
+            h('span.os-board-title', 'Shikoku'),
+          ]),
+          h('div.os-board-pane.os-board-pane--map', [
+            h('div.os-map', [h(Map, game: @game, opacity: 1.0, tile_selector: @tile_selector)]),
+          ]),
+          h('div.os-board-pane.os-board-pane--market', [
+            h('div.os-stock-zoom', [h(StockMarket, game: @game, show_bank: false, embedded_layout: true)]),
+          ]),
+        ])
+      end
 
-      def render_latest_moves
+      def board_switch_button(view, label, pressed)
+        h('button.os-seg-btn', {
+            attrs: { type: 'button', 'data-view': view, 'aria-pressed': pressed.to_s },
+            on: { click: ->(_e) { switch_board(view) } },
+          }, label)
+      end
+
+      # Cosmetic DOM-only toggle, like the old market expander: no store
+      # update, so AiPlayers and the engine do not re-render on a switch.
+      def switch_board(view)
+        %x{
+          var board = document.getElementById('os-board');
+          if (board) {
+            board.classList.toggle('os-board--market', #{view} === 'market');
+            board.querySelectorAll('.os-seg-btn').forEach(function(btn) {
+              btn.setAttribute('aria-pressed', btn.getAttribute('data-view') === #{view} ? 'true' : 'false');
+            });
+          }
+        }
+      end
+
+      # ---- action bar under the board ----
+
+      def render_dock
+        h('section.os-dock', { attrs: { 'aria-label': 'Current action' } }, [
+          h('div.os-dock-intro', [
+            render_turn_banner,
+            render_action_header,
+            h('div.os-current-round', [@round_label]),
+          ].compact),
+          h('div.os-dock-main', [
+            h('div.os-action-form', [@action_panel]),
+            h('div.os-tools', @controls),
+          ]),
+        ])
+      end
+
+      # ---- game log: a running feed, oldest at the top, kept scrolled to the newest ----
+
+      FEED_COUNT = 40
+
+      def render_feed
         entries = @game.log.map { |e| e.respond_to?(:message) ? e.message.to_s : e.to_s }
                        .reject { |m| m.strip.empty? }
-                       .last(LATEST_COUNT)
-                       .reverse
+                       .last(FEED_COUNT)
         return h('p.os-muted', 'No moves yet.') if entries.empty?
 
         corps = @game.corporations.to_h { |c| [c.id, c] }
         players = @game.players
+        scroll = ->(vnode) { `var el = #{vnode}.elm; if (el) { el.scrollTop = el.scrollHeight; }` }
 
-        h('ol.os-latest', entries.map do |message|
+        h('ol.os-latest', { hook: { insert: scroll, postpatch: ->(_old, vnode) { scroll.call(vnode) } } },
+          entries.map do |message|
           next h('li.os-latest-round', message.sub(/^-+\s*/, '').sub(/\s*-+$/, '')) if message.start_with?('--')
 
           first = message.split.first.to_s
@@ -133,37 +183,54 @@ module View
       # them too), so it is fitted with the map's own zoom setting rather than
       # CSS scaling. Only when the player has not chosen a zoom yet; the
       # +/- buttons above the map still change and remember it.
+      # Bumped when the layout changes how much room the board gets, so a zoom
+      # fitted for an older layout is fitted again once (the +/- buttons above
+      # the map still change and remember it afterwards).
+      MAP_FIT_VERSION = 'table-1'
+
       def ensure_fitting_map_zoom
         # 0 during server-side rendering, where there is no real window
         width = `(typeof window !== 'undefined' && typeof localStorage !== 'undefined' && window.innerWidth) || 0`
         return unless width.positive?
-        return if Lib::Storage['map_zoom']
+        return if Lib::Storage['map_zoom'] && Lib::Storage['os_map_fit'] == MAP_FIT_VERSION
 
+        height = `window.innerHeight || 0`
         xs = @game.hexes.map(&:x).uniq.size
         ys = @game.hexes.map(&:y).uniq.size
-        natural = if @game.layout == :flat
-                    (((xs * 1.5) + 0.5) * Map::EDGE_LENGTH) + (2 * Map::GAP)
-                  else
-                    ((((xs / 2) + 0.5) * Map::SIDE_TO_SIDE) + (2 * Map::GAP)) + 1
-                  end
-        # side columns + gaps + card padding on wide screens; page padding on narrow ones
-        available = width >= 1280 ? width - 760 : width - 80
-        zoom = available / natural
+        natural_w, natural_h = if @game.layout == :flat
+                                 [(((xs * 1.5) + 0.5) * Map::EDGE_LENGTH) + (2 * Map::GAP),
+                                  (((ys / 2) + 0.5) * Map::SIDE_TO_SIDE) + (2 * Map::GAP)]
+                               else
+                                 [((((xs / 2) + 0.5) * Map::SIDE_TO_SIDE) + (2 * Map::GAP)) + 1,
+                                  (((ys * 1.5) + 0.5) * Map::EDGE_LENGTH) + (2 * Map::GAP)]
+                               end
+        zoom = if width >= TABLE_MIN_WIDTH
+                 # width: both side rails, gaps and the board's padding.
+                 # height: the table is the window less the sticky game tabs
+                 # (76px); the board gets ~60% of it, less its view switch and
+                 # zoom row (120px). Measured at 1280x800 and 1440x900.
+                 [(width - 740) / natural_w, (((height - 76) * 0.6) - 120) / natural_h].min
+               else
+                 (width - 48) / natural_w
+               end
         zoom = 1.0 if zoom > 1.0
         zoom = 0.35 if zoom < 0.35 || ys.zero?
         zoom = (zoom * 100).floor / 100.0
         Lib::Storage['map_zoom'] = zoom
+        Lib::Storage['os_map_fit'] = MAP_FIT_VERSION
         store(:map_zoom, zoom, skip: true)
       end
+
+      # Matches the @media width in ONE_SCREEN_STYLE where the table layout starts.
+      TABLE_MIN_WIDTH = 1100
 
       # Snabberb's h reads a lone VNode in the props slot as a hash, so title
       # (a String or a VNode) and body (an Array of children) go in as arrays.
       def card(title, body, custom_class = '', right = nil)
         selector = custom_class.empty? ? 'section.os-card' : "section.os-card.#{custom_class}"
-        props = custom_class.include?('os-market-card') ? { attrs: { id: 'os-market-dock' } } : {}
         heading = [h('h2.os-card-title', [title])]
         heading << right if right
-        h(selector, props, [
+        h(selector, [
           h('header.os-card-heading', heading),
           h('div.os-card-body', body),
         ])
@@ -172,21 +239,6 @@ module View
       def details(title, body, id = nil)
         props = id ? { attrs: { id: id } } : {}
         h('details.os-details', props, [h(:summary, title), h('div.os-details-body', body)])
-      end
-
-      def market_heading
-        expand = lambda do
-          # Cosmetic DOM-only toggle; do not store UI state in game saves,
-          # and do not re-render AiPlayers or the engine on each expansion.
-          `document.getElementById('os-market-dock').classList.toggle('os-market-expanded')`
-        end
-        h('span.os-market-heading', [
-          h(:span, 'Stock market'),
-          h('button.os-btn.os-btn--small', {
-              attrs: { type: 'button', title: 'Expand or collapse the market' },
-              on: { click: expand },
-            }, 'Expand'),
-        ])
       end
 
       # ---- status bar ----
@@ -238,6 +290,38 @@ module View
         ])
       end
 
+      # Whose turn it is, in one glance: "Your turn" when the only human seat
+      # is up, the seat's name when several people share the screen, and a
+      # pulsing "playing" pill while the computer moves.
+      def render_turn_banner
+        return if @game.finished
+
+        player = acting_player
+        return unless player
+
+        if (level = ai_level(player))
+          return h('span.os-turn.os-turn--ai', { attrs: { role: 'status' } }, [
+            h('span.os-turn-dot'), "#{player.name} is playing (AI #{level.to_s.capitalize})"
+          ])
+        end
+
+        humans = @game.players.count { |p| !ai_level(p) }
+        label = humans == 1 ? 'Your turn' : "#{player.name}'s turn"
+        h('span.os-turn', { attrs: { role: 'status' } }, [
+          h('span.os-avatar.os-avatar--xs', { style: { background: seat_color(player), color: text_on(seat_color(player)) } },
+            initials(player.name)),
+          label,
+        ])
+      end
+
+      # The player who decides now: the entity itself, or its president.
+      def acting_player
+        entity = current_entity
+        return unless entity
+
+        entity.player? ? entity : entity.owner&.player? && entity.owner
+      end
+
       # ---- players ----
 
       def seat_color(player)
@@ -262,12 +346,17 @@ module View
         priority = @game.priority_deal_player
         active = @game.round.active_step&.current_entity
         active_player = active&.player? ? active : active&.owner
+        values = @game.players.to_h { |p| [p, @game.player_value(p)] }
+        top = values.values.max
+        # only once someone is ahead: at the start everyone is level
+        leader = values.values.count(top) == 1 ? values.key(top) : nil
 
         h('div.os-players', @game.players.map do |player|
           level = ai_level(player)
           role = level ? "AI · #{level.to_s.capitalize}" : 'Human'
           badges = [h("span.os-badge#{level ? '' : '.os-badge--human'}", role)]
           badges << h('span.os-badge.os-badge--priority', 'Priority') if priority == player
+          badges << h('span.os-badge.os-badge--lead', 'Leading') if leader == player
           holds = @game.corporations.select { |c| player.num_shares_of(c).positive? }
           classes = player == active_player ? 'div.os-player.os-player--active' : 'div.os-player'
 
@@ -279,7 +368,7 @@ module View
               h('div.os-player-cash', [h('strong.os-num', currency(player.cash)), h('span', 'cash')]),
             ]),
             h('div.os-player-stats', [
-              stat('Value', currency(@game.player_value(player))),
+              stat('Value', currency(values[player])),
               stat('Certs', "#{@game.num_certs(player)}/#{@game.cert_limit}"),
               h('div.os-stat', [h('span', 'Holds'), h('span.os-holds', holds.map { |c| corp_chip(c, 'os-chip--sm') })]),
             ]),

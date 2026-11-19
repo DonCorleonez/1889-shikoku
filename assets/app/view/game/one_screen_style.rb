@@ -43,17 +43,25 @@ module View
       #shikoku-one-screen .os-round-projected { font: 600 10px/1 var(--sk-sans); letter-spacing: .06em; text-transform: uppercase; color: var(--sk-muted); }
       #shikoku-one-screen .os-round-indicator { font-weight: 900; }
 
-      /* top band: players side by side + latest moves */
-      #shikoku-one-screen .os-band { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start; }
-      #shikoku-one-screen .os-players-card { flex: 999 1 640px; }
-      #shikoku-one-screen .os-latest-card { flex: 1 1 360px; max-width: 520px; }
-      #shikoku-one-screen .os-players-card .os-players { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; }
+      /* turn banner in the status bar */
+      #shikoku-one-screen .os-turn {
+        display: inline-flex; align-self: flex-start; align-items: center; gap: 8px; padding: 5px 12px 5px 5px; border-radius: 999px;
+        background: var(--sk-gold); color: var(--sk-gold-ink); font: 700 14px/1 var(--sk-sans); white-space: nowrap;
+      }
+      #shikoku-one-screen .os-turn .os-avatar--xs { border-radius: 999px; width: 24px; height: 24px; }
+      #shikoku-one-screen .os-turn--ai { padding: 7px 12px; background: var(--sk-faint); color: var(--sk-ink); font-weight: 600; }
+      #shikoku-one-screen .os-turn-dot { width: 8px; height: 8px; border-radius: 999px; background: var(--sk-accent); animation: os-pulse 1.2s ease-in-out infinite; }
+      @keyframes os-pulse { 50% { opacity: .25; } }
+      @media (prefers-reduced-motion: reduce) { #shikoku-one-screen .os-turn-dot { animation: none; } }
+
+      /* game log feed (right rail): oldest at the top, newest at the bottom */
       #shikoku-one-screen .os-card-link { font: 600 13px/1 var(--sk-sans); color: var(--sk-accent); text-decoration: none; }
       #shikoku-one-screen .os-card-link:hover { text-decoration: underline; }
       #shikoku-one-screen .os-latest { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; }
+      #shikoku-one-screen .os-feed-card .os-latest { max-height: 360px; overflow-y: auto; scrollbar-width: thin; padding-right: 4px; }
       #shikoku-one-screen .os-latest-item { display: flex; align-items: flex-start; gap: 10px; padding: 7px 0; border-top: 1px solid var(--sk-divider); font: 500 13px/1.45 var(--sk-sans); color: var(--sk-ink); }
       #shikoku-one-screen .os-latest-item:first-child { border-top: 0; }
-      #shikoku-one-screen .os-latest-item:first-child .os-latest-text { font-weight: 600; }
+      #shikoku-one-screen .os-latest-item:last-child .os-latest-text { font-weight: 600; }
       #shikoku-one-screen .os-latest-item .os-chip, #shikoku-one-screen .os-latest-item .os-avatar { margin-top: 1px; }
       #shikoku-one-screen .os-latest-text { min-width: 0; overflow-wrap: anywhere; }
       #shikoku-one-screen .os-latest-text strong { font-weight: 700; }
@@ -62,15 +70,33 @@ module View
       #shikoku-one-screen .os-latest-dot::before { content: ''; width: 6px; height: 6px; border-radius: 999px; background: var(--sk-line-2); }
       #shikoku-one-screen .os-avatar--xs { width: 22px; height: 20px; border-radius: 6px; font-size: 9px; }
 
-      /* layout */
-      #shikoku-one-screen .os-workspace { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start; }
-      #shikoku-one-screen .os-col { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
-      #shikoku-one-screen .os-col-left { flex: 1 1 290px; max-width: 360px; }
-      #shikoku-one-screen .os-col-center { flex: 999 1 520px; }
-      #shikoku-one-screen .os-col-right { flex: 1 1 320px; max-width: 400px; position: sticky; top: 12px; }
-      #shikoku-one-screen .os-row { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start; }
-      #shikoku-one-screen .os-market-card { flex: 999 1 420px; }
-      #shikoku-one-screen .os-trains-card { flex: 1 1 230px; }
+      /* layout: narrow screens stack board, action bar, players + log, companies */
+      #shikoku-one-screen .os-table { display: flex; flex-direction: column; gap: 12px; }
+      #shikoku-one-screen .os-stage { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+      #shikoku-one-screen .os-rail { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+
+      /* wide screens: a game table that fills the window, nothing below the fold
+         except the extras. Keep 1100px in sync with OneScreen::TABLE_MIN_WIDTH. */
+      @media (min-width: 1100px) {
+        #shikoku-one-screen .os-table {
+          display: grid; grid-template-columns: minmax(250px, 300px) minmax(0, 1fr) minmax(270px, 330px);
+          grid-template-areas: "left stage right"; align-items: stretch;
+          /* the window less the sticky game tabs (52px) and their margin */
+          height: calc(100vh - 76px); min-height: 640px; scroll-margin-top: 64px;
+        }
+        #shikoku-one-screen .os-rail-left { grid-area: left; }
+        #shikoku-one-screen .os-stage { grid-area: stage; min-height: 0; }
+        #shikoku-one-screen .os-rail-right { grid-area: right; }
+        #shikoku-one-screen .os-rail { min-height: 0; overflow-y: auto; scrollbar-width: thin; padding-bottom: 2px; }
+        #shikoku-one-screen .os-board { flex: 1 1 60%; min-height: 0; }
+        #shikoku-one-screen .os-dock { flex: 0 1 auto; max-height: 40%; overflow-y: auto; }
+        #shikoku-one-screen .os-rail-right .os-feed-card { flex: 1 0 260px; min-height: 260px; }
+        #shikoku-one-screen .os-feed-card .os-card-body { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+        #shikoku-one-screen .os-feed-card .os-latest { flex: 1 1 0; max-height: none; }
+      }
+      @media (min-width: 1100px) and (max-width: 1360px) {
+        #shikoku-one-screen .os-dock { grid-template-columns: minmax(0, 1fr); }
+      }
 
       /* cards */
       #shikoku-one-screen .os-card {
@@ -144,10 +170,29 @@ module View
       #shikoku-one-screen .os-tokens { margin-left: auto; display: inline-flex; gap: 4px; align-items: center; }
       #shikoku-one-screen .os-token { width: 10px; height: 10px; border-radius: 999px; border: 1.5px solid; display: inline-block; }
 
-      /* map */
-      #shikoku-one-screen .os-map-card .os-card-body { background: var(--sk-sea); border-radius: 12px; overflow: auto; max-height: 78vh; }
+      /* board: the map (or the market) on a sea-coloured table */
+      #shikoku-one-screen .os-board {
+        display: flex; flex-direction: column; min-width: 0; overflow: hidden;
+        background: var(--sk-sea); border: 1px solid var(--sk-line); border-radius: 16px;
+      }
+      #shikoku-one-screen .os-board-bar { display: flex; align-items: center; gap: 12px; padding: 10px 12px 0; }
+      #shikoku-one-screen .os-board-title { margin-left: auto; font: 600 13px/1 var(--sk-display); letter-spacing: .08em; text-transform: uppercase; color: var(--sk-paper-ink); opacity: .7; }
+      #shikoku-one-screen .os-seg { display: inline-flex; gap: 2px; padding: 3px; border-radius: 10px; background: rgba(255,255,255,.55); }
+      #shikoku-one-screen .os-seg-btn {
+        min-height: 36px; padding: 0 14px; border: 0; border-radius: 8px; background: transparent;
+        color: #2E3846; font: 600 13px/1 var(--sk-sans); cursor: pointer;
+      }
+      #shikoku-one-screen .os-seg-btn[aria-pressed="true"] { background: #FFFFFF; color: #141A24; box-shadow: 0 1px 2px rgba(20,26,36,.18); }
+      #shikoku-one-screen .os-board-pane { min-height: 0; overflow: auto; }
+      #shikoku-one-screen .os-board-pane--map { flex: 1; max-height: 78vh; }
+      #shikoku-one-screen .os-board-pane--market { display: none; flex: 1; margin: 10px; border-radius: 12px; background: var(--sk-paper); color: var(--sk-paper-ink); max-height: 78vh; }
+      #shikoku-one-screen .os-board--market .os-board-pane--map { display: none; }
+      #shikoku-one-screen .os-board--market .os-board-pane--market { display: block; }
+      @media (min-width: 1100px) {
+        #shikoku-one-screen .os-board-pane--map, #shikoku-one-screen .os-board-pane--market { max-height: none; }
+      }
       /* margin:auto (not flex centering) keeps an oversized map scrollable to its top-left edge. */
-      #shikoku-one-screen .os-map { display: flex; }
+      #shikoku-one-screen .os-map { display: flex; min-height: 100%; }
       #shikoku-one-screen .os-map > div { max-width: none; margin: auto; }
 
       #shikoku-one-screen #map_controls { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px; }
@@ -166,14 +211,9 @@ module View
       #shikoku-one-screen svg#map text { font-family: var(--sk-sans); }
       #shikoku-one-screen #map_zoom { padding: 8px 8px 0; }
 
-      /* market */
-      #shikoku-one-screen .os-market-heading { display: inline-flex; align-items: center; gap: 10px; }
-      #shikoku-one-screen .os-market-card .os-card-body { overflow: auto; }
+      /* market (shown in the board area) */
       /* zoom (unlike transform) shrinks the layout box too, so nothing is clipped */
-      #shikoku-one-screen .os-stock-zoom { zoom: .85; width: max-content; }
-      #shikoku-one-screen .os-market-card .os-card-body { max-height: 460px; }
-      #shikoku-one-screen .os-market-expanded .os-card-body { max-height: none; }
-      #shikoku-one-screen .os-market-expanded .os-stock-zoom { zoom: 1; }
+      #shikoku-one-screen .os-stock-zoom { zoom: .9; width: max-content; padding: 8px; }
 
       /* trains & phase */
       #shikoku-one-screen .os-phases { display: flex; gap: 4px; }
@@ -187,8 +227,15 @@ module View
       #shikoku-one-screen .os-depot-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-top: 1px solid var(--sk-divider); }
       #shikoku-one-screen .os-depot-row .os-muted { margin-left: auto; }
 
-      /* action */
-      #shikoku-one-screen .os-action-card { border: 2px solid var(--sk-accent); }
+      /* action bar under the board: who and which step on the left, the controls on the right */
+      #shikoku-one-screen .os-dock {
+        display: grid; grid-template-columns: minmax(220px, 300px) minmax(0, 1fr); gap: 12px 20px; align-items: start;
+        background: var(--sk-card); border: 2px solid var(--sk-accent); border-radius: 16px; padding: 14px 16px;
+        scrollbar-width: thin;
+      }
+      #shikoku-one-screen .os-dock-intro, #shikoku-one-screen .os-dock-main { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+      @media (max-width: 760px) { #shikoku-one-screen .os-dock { grid-template-columns: minmax(0, 1fr); } }
+      #shikoku-one-screen .os-badge--lead { background: var(--sk-ink); color: var(--sk-card); }
       #shikoku-one-screen .os-action-intro { display: flex; flex-direction: column; gap: 14px; }
       #shikoku-one-screen .os-action-head { display: flex; align-items: center; gap: 12px; }
       #shikoku-one-screen .os-action-title { display: flex; flex-direction: column; gap: 4px; min-width: 0; font: 500 13px/1.3 var(--sk-sans); color: var(--sk-muted); }
@@ -221,7 +268,7 @@ module View
       html[data-theme=dark] #shikoku-one-screen .os-action-form,
       html[data-theme=dark] #shikoku-one-screen .os-log-card .os-card-body,
       html[data-theme=dark] #shikoku-one-screen .os-details-body,
-      html[data-theme=dark] #shikoku-one-screen .os-market-card .os-card-body {
+      html[data-theme=dark] #shikoku-one-screen .os-board-pane--market {
         background: var(--sk-paper); border-radius: 10px; padding: 10px;
       }
       html[data-theme=dark] #shikoku-one-screen .os-current-round { background: var(--sk-paper); }
@@ -249,7 +296,7 @@ module View
       #game [aria-label="Game"] {
         background: var(--sk-card) !important; color: var(--sk-ink) !important; box-shadow: none !important;
         border-top: 0 !important; border-bottom: 1px solid var(--sk-line) !important; font: 600 15px/1 var(--sk-sans) !important;
-        margin-bottom: 12px !important;
+        margin-bottom: 12px !important; max-width: 100%; overflow-x: auto; scrollbar-width: thin;
       }
       #game [aria-label="Game"] a, #game [aria-label="Game"] span { color: var(--sk-ink) !important; }
       #game #ai_players, #game #ai_players * { color: var(--sk-ink); }
@@ -264,9 +311,6 @@ module View
       #game #ai_players select { min-height: 32px; border-radius: 6px; border: 1px solid var(--sk-line-2); }
 
       @media (max-width: 760px) {
-        #shikoku-one-screen .os-col-left, #shikoku-one-screen .os-col-right { max-width: none; }
-        #shikoku-one-screen .os-col-right { position: static; }
-        #shikoku-one-screen .os-latest-card { max-width: none; }
         #shikoku-one-screen .os-bank { margin-left: 0; width: 100%; }
       }
     CSS
