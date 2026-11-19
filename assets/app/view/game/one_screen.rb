@@ -152,7 +152,14 @@ module View
 
         corps = @game.corporations.to_h { |c| [c.id, c] }
         players = @game.players
-        scroll = ->(vnode) { `var el = #{vnode}.elm; if (el) { el.scrollTop = el.scrollHeight; }` }
+        # A multi-line %x is compiled as a JS statement; a one-line backtick
+        # is an expression, where `var` is a syntax error.
+        scroll = lambda do |vnode|
+          %x{
+            var el = #{vnode}.elm;
+            if (el) { el.scrollTop = el.scrollHeight; }
+          }
+        end
 
         items = entries.map do |message|
           next h('li.os-latest-round', message.sub(/^-+\s*/, '').sub(/\s*-+$/, '')) if message.start_with?('--')
