@@ -27,6 +27,7 @@ module View
         needs :show_other_players, default: nil, store: true
         needs :flexible_player, default: nil, store: true
         needs :show_sr_hand, default: false, store: true
+        needs :embedded_layout, default: false
 
         def render
           round = @game.round
@@ -96,12 +97,12 @@ module View
           children.concat(render_bank_companies) unless @bank_first
           children << render_show_hand_button unless @game.hand_companies_for_stock_round.empty?
           children.concat(render_hand_companies) if show_sr_hand?
-          children << h(Players, game: @game)
+          children << h(Players, game: @game) unless @embedded_layout
           if @step.respond_to?(:purchasable_companies) && !@step.purchasable_companies(@current_entity).empty?
             children << h(BuyCompanyFromOtherPlayer, game: @game)
           end
-          children << render_bank
-          children << h(StockMarket, game: @game, show_bank: true)
+          children << render_bank unless @embedded_layout
+          children << h(StockMarket, game: @game, show_bank: true) unless @embedded_layout
 
           h(:div, children)
         end

@@ -37,197 +37,6 @@ TEST_CASES = [
       'Player 1 must sell shares to raise at least ¥444',
       '!!Bankruptcy']],
     [nil, 'endgame', '1889: Phase D - Operating Round 7.1 (of 3) - Game Over - Bankruptcy']]],
-  ['1882',
-   5236,
-   [[399, 'sc_home_token', '1882: Phase 4 - Stock Round 6 - Place Home Token'],
-    [229, 'qll_home_token', '1882: Phase 3 - Operating Round 4.1 (of 1) - Place Home Token'],
-    [370, 'nwr_place_token', '1882: Phase 4 - Operating Round 5.2 (of 2) - NWR: Place Token'],
-    [371, 'nwr_lay_track', '1882: Phase 4 - Operating Round 5.2 (of 2) - NWR: Lay Track']]],
-  ['1846',
-   3099,
-   [[0, 'draft', '1846: Phase I - Draft Round 1 - Draft Companies'],
-    [18, 'draft', 'Mail Contract'],
-    [49,
-     'lay_track_or_token',
-     ['1846: Phase I - Operating Round 1.1 (of 2) - Place a Token or Lay Track',
-      # Minor charter stuff
-      'Michigan Southern', 'Trains', '2', 'Cash', 'C15', '$60']],
-    [74,
-     'issue_shares',
-     ['1846: Phase I - Operating Round 1.1 (of 2) - Place a Token or Lay Track',
-      'Issue', '1 ($50)', '2 ($100)', '3 ($150)', '4 ($200)']],
-    [94,
-     'dividend',
-     ['Pay or Withhold Dividends',
-      '2 right',
-      '1 right',
-      '1 left']],
-    [142,
-     'assign',
-     ['1846: Phase II - Operating Round 2.1 (of 2) - Assign Steamboat Company',
-      'Player 4 may assign Steamboat Company to a new hex and/or corporation or minor.',
-      'Add a bonus to the value of one port city']],
-    [nil, 'endgame', '1846: Phase IV - Operating Round 6.2 (of 2) - Game Over - Bank Broken']]],
-  ['1846', 'hs_cvjhogoy_1599504419', [[49, 'buy_train_emr_shares', 'has $60 in sellable shares']]],
-  ['1846', 'hs_sudambau_1600037415', [[37, 'buy_train', ['GT has $280', '!!can issue shares']]]],
-  ['1846',
-   'hs_sudambau_1600037415',
-   [[60,
-     'buy_train_bankrupt',
-     ['B&amp;O has $0',
-      'Player 3 must contribute $160 for B&amp;O to afford a train from the Depot.',
-      'Player 3 has $15',
-      'Player 3 has $0 in sellable shares',
-      'Player 3 does not have enough liquidity to contribute towards B&amp;O buying a '\
-      'train from the Depot. B&amp;O must buy a train from another corporation, or Player 3 '\
-      'must declare bankruptcy.',
-      'Declare Bankruptcy']]]],
-  ['18AL',
-   4714,
-   [[nil, 'endgame', '18AL: Phase 5 - Operating Round 7.2 (of 3) - Game Over - Company hit max stock value']]],
-  ['18TN',
-   7818,
-   [[nil, 'endgame', '18TN: Phase 8 - Operating Round 8.2 (of 3) - Game Over - Bank Broken']]],
-  ['18MS',
-   14_375,
-   [[nil, 'endgame', '18MS: Phase D - Operating Round 10 (of 10) - Game end after OR 10 - Game Over']]],
-  ['18MEX',
-   13_315,
-   [[265,
-     'merge',
-     ['Merge',
-      'Decline',
-      'Corporations that can merge with NdM']]]],
-  ['18MEX',
-   17_849,
-   [[nil, 'endgame', '18MEX: Phase 4D - Operating Round 4.2 (of 2) - Game Over - Bankruptcy']]],
-  ['1817',
-   20_758,
-   [[369,
-     'choose_corp_size',
-     ['1817: Phase 3 - Stock Round 2 - Buy or Sell Shares',
-      'Strasburg Railroad',
-      'Loans', '0/2',
-      'Number of Shares:', '2', '5']]]],
-  ['1817',
-   15_528,
-   [[196,
-     'merge',
-     ['Convert',
-      'Merge',
-      'Grand Trunk Western Railroad',
-      'Corporations that can merge with A&amp;S']],
-    [205, 'offer', ['Offer for Sale', 'Warren &amp; Trumbull Railroad']],
-    [383,
-     'merge_with_other_players',
-     ['Convert',
-      'Merge',
-      'Pittsburgh, Shawmut and Northern Railroad',
-      'Corporations that can merge with J']],
-    [1502,
-     'stock',
-     ['Stock Round 7',
-      'Final phase was reached',
-      'buys a 10% share of Bess from the market for $165']]]],
-  ['1817',
-   16_852,
-   [[889, 'cash_crisis', ['Player 2 owes the bank $294 and must raise cash if possible.']]]],
-  ['1817',
-   16_281,
-   [[809,
-     'buy_sell_post_conversion',
-     ['Merger Round 4.2 (of 2) - Buy/Sell Shares Post Conversion',
-      'New York, Susquehanna and Western Railway']]]],
-  ['1817NA',
-   25_351,
-   [[nil, 'endgame', '1817NA: Phase 7 - Acquisition Round 5.1 (of 2) - Game Over - Bankruptcy']]],
-  ['18Chesapeake',
-   1905,
-   [[153, 'blocking_special_track', ['Lay Track for Columbia - Philadelphia Railroad']]]],
-  ['18Chesapeake',
-   22_383,
-   [[56, 'removing_share_from_market',
-     ['Stock Round 3 - Sell then Buy Shares',
-      'Player 2 removes a 10% share of SRR from the game',
-      'Player 2 buys a 10% share of SRR from the market for $95']]]],
-  ['18CO',
-   22_032,
-   [[309,
-     'corporate_share_buy',
-     ['Pass (Share Buy)',
-      'Buy Market Share',
-      'Buy DPAC Share',
-      'Buy CM Share']],
-    [315,
-     'corporate_share_sale',
-     ['Pass (Share Sale)',
-      'Kansas Pacific Railway',
-      'Sell 1 ($40)',
-      'Sell 2 ($80)',
-      'Sell 3 ($120)']],
-    [nil, 'pass', ['18CO: Phase 7 - Operating Round 6.2 (of 2) - Game Over - Bank Broken']]]],
-  ['1867',
-   21_268,
-   [[531,
-     'mid_convert',
-     ['Choose Major Corporation']],
-    [533,
-     'buy_shares_post_merge',
-     ['Buy Shares Post Merge',
-      'Buy Treasury Share']],
-    [698,
-     'major_nationalize',
-     ['Nationalize Major',
-      'Choose if Major is nationalized',
-      'Grand Trunk Railway']],
-    [nil,
-     'endgame',
-     ['Operating Round 6.3 (of 3) - Game Over']]]],
-  ['1860',
-   19_354,
-   [[215,
-     'stock_round_1',
-     ['!!<div>Fishbourne Ferry Company',
-      '<div>Cowes Marina and Harbour',
-      '<div>Brading Harbour Company']],
-    [350,
-     'stock_round_2',
-     ['<div>Fishbourne Ferry Company',
-      '<div>Cowes Marina and Harbour',
-      '<div>Brading Harbour Company']],
-    [444,
-     'stock_round_3',
-     ['<div>Fishbourne Ferry Company',
-      '!!<div>Cowes Marina and Harbour',
-      '!!<div>Brading Harbour Company']],
-    [nil,
-     'endgame',
-     ['1860: Phase 9 - Operating Round 8.4 (Nationalization) - Game Over - Nationalization complete']]]],
-
-  ['1822CA',
-   2,
-   [[nil,
-     'endgame',
-     ['GWR (P10) places a token on N16 (Winnipeg)',
-      'P10 (Winnipeg Station) closes',
-      '1822CA: Phase 7 - Operating Round 8.1 (of 2) - Game Over']]]],
-  ['1868 Wyoming',
-   144_719,
-   [[433,
-     'double headed trains',
-     ['Operating Round 3.2 (of 2)',
-      '3+2 [5+4]']]]],
-  ['1841',
-   132_002,
-   [[939,
-     'endgame',
-     ['1841: Phase 8 - Operating Round 7.1 (of 3) - Game Over - Company hit max stock value']]]],
-  ['18NY',
-   108_746,
-   [[130,
-     'stock',
-     ['Stock Round 3',
-      '10 receives $110 in its Treasury']]]],
 ].freeze
 
 AUTO_ACTIONS_TEST_CASES = [
@@ -236,14 +45,7 @@ AUTO_ACTIONS_TEST_CASES = [
    [[7, 'buy_to_float', [
     'Auto Buy Shares',
     'KO',
-   ]]],
-   ['1817',
-    15_528,
-    [[141, 'merger', [
-      'Auto Pass in Mergers',
-      'A&S',
-      'Merger and Conversion Round',
-    ]]]]],
+   ]]]],
 ].freeze
 
 describe 'Assets' do
@@ -256,12 +58,15 @@ describe 'Assets' do
   end
 
   describe '#html' do
-    it 'renders logged out' do
-      expect(render).to include('18xx.Games')
+    it 'renders the 1889 home page' do
+      html = render
+      expect(html).to include('四国', 'Build the railways of Shikoku.', 'Saved games', 'New game',
+                              'Start game · 3 players', 'Tutorial', 'Import save')
+      expect(html).not_to include('Signup', 'Login')
     end
 
     it 'renders home logged in' do
-      expect(render(user: { name: 'toby', settings: { consent: true } })).to include('Profile (toby)')
+      expect(render(user: { name: 'toby', settings: { consent: true } })).to include('Saved games')
     end
 
     it 'consent logged in' do
@@ -277,32 +82,22 @@ describe 'Assets' do
 
       expect(render(app_route: '/tiles/57')).to include('57')
 
-      expect(render(app_route: '/tiles/18Chesapeake/all')).to include('I9')
+      expect(render(app_route: '/tiles/1889/K4')).to include('K4')
+      i2_k4 = render(app_route: '/tiles/1889/I2+K4')
+      expect(i2_k4).to include('I2')
+      expect(i2_k4).to include('K4')
 
-      expect(render(app_route: '/tiles/18Chesapeake/I9')).to include('I9')
-      expect(render(app_route: '/tiles/18Chesapeake/X1')).to include('X1')
-      x2_x3 = render(app_route: '/tiles/18Chesapeake/X2+X3')
-      expect(x2_x3).to include('X2')
-      expect(x2_x3).to include('X3')
-
-      aggregate_failures 'location name for all stop types' do
-        with_loc_names = render(app_route: '/tiles/18Chesapeake/B2+H6+K3')
-        %w[B2 Pittsburgh H6 Baltimore K3 Trenton Amboy D&amp;R].each do |str|
+      aggregate_failures 'location names' do
+        with_loc_names = render(app_route: '/tiles/1889/K4+I2+F3')
+        %w[K4 Takamatsu I2 Marugame F3 Saijou].each do |str|
           expect(with_loc_names).to include(str)
         end
       end
 
-      multiple_games = render(app_route: '/tiles/1889+18Chesapeake/all')
-      expect(multiple_games).to include('Kouchi')
-      expect(multiple_games).to include('Delmarva')
-
-      %w[1889 18Chesapeake].each do |title|
-        rendered = render(app_route: "/tiles/#{title}/all")
-
-        expect(rendered).to include("#{title} Map Hexes")
-        expect(rendered).to include("#{title} Tile Manifest")
-        expect(rendered).not_to include('TODO')
-      end
+      rendered = render(app_route: '/tiles/1889/all')
+      expect(rendered).to include('1889 Map Hexes')
+      expect(rendered).to include('1889 Tile Manifest')
+      expect(rendered).not_to include('TODO')
     end
 
     it 'renders login' do
@@ -315,16 +110,6 @@ describe 'Assets' do
 
     context '/map' do
       {
-        # games with config but not full implementation; just do a quick spot check
-        '1817' => %w[Pittsburgh],
-        '1817NA' => %w[
-          Anchorage The Klondike Dawson City Hazelton Arctic Edmonton Winnipeg
-          Quebec Europe Seattle Denver Toronto New York Hawaii Los Angeles
-          Guadalajara Mexico City Miami New Orleans Belize South America
-          20 30 40 50 60 80 15 10 B Asia
-        ],
-        '1846' => %w[Chicago],
-
         # games with full implementation; verify every string on the map
         '1889' => %w[
           1 10 11 12 13 14 2 20 3 30 4 40 5 6 60 7 8 80 9 A AR Anan Awaji B C D
@@ -332,16 +117,6 @@ describe 'Assets' do
           Kouchi Kouen KU Kubokawa L Marugame Matsuyama Muki Muroto Nahari
           Nakamura Nangoku Naruto Niihama Ohzu Okayama Ritsurin SR Saijou
           Sakaide Sukumo T TR Takamatsu Tokushima UR Uwajima Yawatahama
-        ],
-        '18Chesapeake' => %w[
-          1 10 100 11 12 13 14 2 3 30 4 40 5 50 6 60 7 8 80 9 A Allentown Amboy
-          B B&amp;O B&amp;S Baltimore Berlin Burlington C C&amp;A C&amp;O
-          C&amp;OC C-P Camden Charleroi Charlottesville Coal Columbia
-          Connellsville D D&amp;R DC Delmarva E Easton F Fredericksburg G Green
-          H Hagerstown Harrisburg I J K L LV Leesburg Lynchburg N&amp;W New
-          Norfolk OO Ohio PLE PRR Peninsula Philadelphia Pittsburgh Princeton
-          Richmond SRR Spring Strasburg Trenton Virginia Washington West
-          Wilmington York
         ],
       }.each do |game_title, expected_strings|
         context game_title do

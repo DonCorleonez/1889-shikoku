@@ -15,6 +15,7 @@ require 'view/admin'
 require 'view/create_game'
 require 'view/game_card_page'
 require 'view/home'
+require 'view/shikoku_home'
 require 'view/confirm'
 require 'view/flash'
 require 'view/game_page'
@@ -93,7 +94,7 @@ class App < Snabberb::Component
       when /market/
         h(View::MarketPage, route: @app_route)
       else
-        h(View::Home, user: @user)
+        h(View::ShikokuHome, user: @user)
       end
 
     page = h(View::About, needs_consent: true) if needs_consent

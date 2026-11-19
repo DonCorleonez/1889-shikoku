@@ -29,15 +29,10 @@ module Engine
       [game, count]
     end
 
-    it 'plays a full game of 1882 with only AI players' do
-      game, = play('1882')
+    it 'plays a full game of 1889 with only AI players' do
+      game, = play('1889')
       expect(game.finished).to be(true)
       expect(game.exception).to be_nil
-    end
-
-    it 'plays a full game of 18MS with only AI players' do
-      game, = play('18MS')
-      expect(game.finished).to be(true)
     end
 
     it 'plays deep into 1889 without getting stuck' do

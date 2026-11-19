@@ -1,6 +1,18 @@
 # frozen_string_literal: true
 
 class Index < Snabberb::Layout
+  THEME_BOOT = <<~JS
+    (function () {
+      try {
+        var t = localStorage.getItem('sk_theme');
+        if (t !== 'dark' && t !== 'light') {
+          t = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) { document.documentElement.setAttribute('data-theme', 'light'); }
+    })();
+  JS
+
   def render
     view_port = {
       name: 'viewport',
@@ -11,7 +23,9 @@ class Index < Snabberb::Layout
       h(:head, [
         h(:meta, props: { charset: 'utf-8' }),
         h(:meta, props: view_port),
-        h(:title, '18xx.Games'),
+        h(:title, '1889 Shikoku'),
+        # Light/dark theme before first paint: saved choice, else the system setting.
+        h(:script, props: { innerHTML: THEME_BOOT }),
         # rubocop:disable Layout/LineLength
         h(:link, attrs: { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/normalize.css@8.0.1/normalize.min.css' }),
         h(:link, attrs: { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap' }),

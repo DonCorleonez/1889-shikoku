@@ -15,8 +15,21 @@ module View
       needs :game, store: true
       needs :game_data, store: true
       needs :flash_opts, default: {}, store: true
+      needs :ai_speed, default: nil, store: true
 
-      DELAY_MS = 600
+      # Pause before each AI move, so a human can follow along. A per-browser
+      # preference (Lib::Storage 'ai_speed'), not part of the game save.
+      SPEEDS = { 'slow' => 2500, 'normal' => 1500, 'fast' => 800 }.freeze
+      DEFAULT_SPEED = 'normal'
+
+      def self.speed
+        value = Lib::Storage['ai_speed'].to_s
+        SPEEDS.key?(value) ? value : DEFAULT_SPEED
+      end
+
+      def self.delay_ms
+        SPEEDS[speed]
+      end
 
       def render
         return h(:span) if @game_data[:mode] != :hotseat || !Engine::AI.supported?(@game.class.title)
@@ -56,6 +69,17 @@ module View
                            on: { click: -> { toggle_pause } },
                          }, paused?(@game_data) ? 'Resume AI' : 'Pause AI')
 
+        speed_select = h(:label, { style: { whiteSpace: 'nowrap', marginRight: '0.6rem' } }, [
+          'Speed ',
+          h(:select, {
+              attrs: { 'aria-label': 'AI move speed' },
+              on: { change: ->(event) { change_speed(Native(event).target.value) } },
+            }, SPEEDS.keys.map do |key|
+              label = "#{key.capitalize} (#{format('%.1f', SPEEDS[key] / 1000.0)} s)"
+              h(:option, { attrs: { value: key, selected: key == (@ai_speed || self.class.speed) } }, label)
+            end),
+        ])
+
         h('div#ai_players', {
             style: {
               margin: '0.5rem 0',
@@ -66,6 +90,7 @@ module View
           }, [
           h(:strong, { style: { marginRight: '0.6rem' } }, 'AI players:'),
           *seats,
+          (ids.empty? ? '' : speed_select),
           (ids.empty? ? '' : pause_button),
           h(:span, { style: { fontStyle: 'italic' } }, status),
         ])
@@ -125,6 +150,13 @@ module View
         update_settings(ai_paused: !paused?(@game_data))
       end
 
+      def change_speed(value)
+        return unless SPEEDS.key?(value)
+
+        Lib::Storage['ai_speed'] = value
+        store(:ai_speed, value)
+      end
+
       # Only one pending bot move at a time, however often we re-render.
       def schedule
         return if timer_pending?
@@ -133,7 +165,7 @@ module View
           `window.__ai_timer = null`
           play
         end
-        `window.__ai_timer = setTimeout(#{callback}, #{DELAY_MS})`
+        `window.__ai_timer = setTimeout(#{callback}, #{self.class.delay_ms})`
       end
 
       def timer_pending?

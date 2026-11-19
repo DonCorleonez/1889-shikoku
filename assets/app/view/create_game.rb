@@ -14,7 +14,7 @@ module View
     include Lib::WhatsThis::AutoRoute
     include Lib::WhatsThis::EngineV2
 
-    needs :mode, default: :multi, store: true
+    needs :mode, default: :hotseat, store: true
     needs :flash_opts, default: {}, store: true
     needs :user, default: nil, store: true
     needs :visible_optional_rules, default: nil, store: true
@@ -397,7 +397,6 @@ module View
 
     def mode_selector
       h(:div, { style: { margin: '1rem 0' } }, [
-        *mode_input(:multi, 'Multiplayer'),
         *mode_input(:hotseat, 'Hotseat'),
         *mode_input(:json, 'Import hotseat game'),
       ])

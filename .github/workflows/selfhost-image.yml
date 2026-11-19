@@ -1,0 +1,122 @@
+name: Self-host image (arm64)
+
+# Builds the docker-compose.selfhost.yml stack natively on an ARM64 runner
+# (same architecture as Oracle Cloud Ampere A1), boots it, smoke-tests the
+# site, and publishes the two images to ghcr.io so the server can pull them
+# instead of building.
+
+on:
+  push:
+    branches: [ main, 'debloat/**', 'deploy/**', 'ui/**' ]
+  workflow_dispatch:
+
+permissions:
+  contents: write   # screenshots are pushed to ci-shots/<branch>
+  packages: write
+
+jobs:
+  arm64:
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 60
+    env:
+      COMPOSE: docker compose -f docker-compose.selfhost.yml
+      GIT_REV: ${{ github.sha }}
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Write .env
+      run: |
+        echo "POSTGRES_PASSWORD=$(openssl rand -hex 24)" > .env
+        echo "WEB_PORT=8189" >> .env
+
+    - name: Probe libv8-node platforms
+      continue-on-error: true
+      run: |
+        docker run --rm ruby:3.4 sh -c 'gem list "^(libv8-node|mini_racer)$" --remote --all' | cut -c1-600
+
+    - name: Build
+      run: $COMPOSE build
+
+    - name: Start
+      run: $COMPOSE up -d
+
+    - name: Smoke test
+      run: |
+        set -e
+        for i in $(seq 1 60); do
+          code=$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8189/ || true)
+          [ "$code" = 200 ] && break
+          sleep 5
+        done
+        echo "home: $code"; [ "$code" = 200 ]
+        check() {
+          code=$(curl -s -o /tmp/body -w '%{http_code}' "http://127.0.0.1:8189$1")
+          echo "$1 -> $code ($(wc -c < /tmp/body) bytes)"
+          [ "$code" = 200 ]
+          if [ -n "$2" ]; then grep -q "$2" /tmp/body; fi
+        }
+        check /
+        check /new_game
+        check /assets/main.css
+        check /assets/tutorial.json 'Good luck and have fun!'
+        check /assets/version.json "$GIT_REV"
+        check /logos/1889/AR.svg
+        # the compiled 1889 title bundle must exist
+        $COMPOSE exec -T web sh -c 'ls /public/assets/' | tee /tmp/assets.txt
+        grep -q 'g_1889' /tmp/assets.txt
+
+    - name: Screenshots
+      continue-on-error: true
+      run: |
+        mkdir -p /tmp/shots-tool && cp .github/screenshots.mjs /tmp/shots-tool/
+        cd /tmp/shots-tool
+        npm init -y > /dev/null
+        npm install --no-audit --no-fund playwright@1.49.1 > /dev/null
+        npx playwright install --with-deps chromium > /dev/null
+        node screenshots.mjs "$GITHUB_WORKSPACE/shots"
+
+    - name: Upload screenshots
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: screenshots
+        path: shots/
+        if-no-files-found: ignore
+
+    - name: Push screenshots to ci-shots/<branch>
+      if: always() && github.event_name != 'pull_request'
+      continue-on-error: true
+      run: |
+        [ -d shots ] && [ -n "$(ls -A shots)" ] || exit 0
+        ref=$(echo "${{ github.ref_name }}" | tr '/' '-')
+        cd shots
+        echo "${GITHUB_SHA}" > COMMIT
+        git init -q && git checkout -q -b shots
+        git add -A
+        git -c user.name=ci -c user.email=ci@users.noreply.github.com commit -qm "screenshots for ${GITHUB_SHA::7}"
+        git push -fq "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" "shots:refs/heads/ci-shots/$ref"
+
+    - name: Logs
+      if: always()
+      run: $COMPOSE logs --no-color --tail=200
+
+    - name: Publish images to ghcr.io
+      if: success() && github.event_name != 'pull_request'
+      run: |
+        set -e
+        owner=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+        ref=$(echo "${{ github.ref_name }}" | tr '/' '-')
+        echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+        for svc in app web; do
+          for tag in "$ref" "sha-${GITHUB_SHA::7}"; do
+            img="ghcr.io/$owner/1889-shikoku-$svc:$tag-arm64"
+            docker tag "shikoku_$svc" "$img"
+            # ghcr.io sometimes answers "unknown blob" mid-push; retry
+            for attempt in 1 2 3; do docker push "$img" && break; [ "$attempt" = 3 ] && exit 1; sleep 10; done
+            echo "pushed $img" >> "$GITHUB_STEP_SUMMARY"
+          done
+        done
+
+    - name: Stop
+      if: always()
+      run: $COMPOSE down -v
