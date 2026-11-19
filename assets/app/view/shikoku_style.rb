@@ -6,16 +6,43 @@
 module View
   SHIKOKU_SHELL_STYLE = <<~CSS
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@600&family=Space+Grotesk:wght@500;600;700&display=swap');
-    :root {
-      --sk-ground: #EEF1F5; --sk-card: #FFFFFF; --sk-line: #DCE1E8; --sk-line-2: #C9D0DA;
-      --sk-ink: #18202B; --sk-muted: #556070; --sk-faint: #F2F4F7; --sk-soft: #F7F8FA;
-      --sk-accent: #2B4ACB; --sk-accent-ink: #FFFFFF; --sk-accent-soft: #E8ECF6;
-      --sk-warn: #A33A2E; --sk-good: #1F7A43; --sk-gold: #F2D457;
+    :root, html[data-theme=light] {
+      color-scheme: light;
+      --sk-ground: #EEF1F5; --sk-card: #FFFFFF; --sk-line: #D3D9E2; --sk-line-2: #B9C2CF; --sk-divider: #E6EAF0;
+      --sk-ink: #141A24; --sk-muted: #3F4857; --sk-soft-ink: #5A6474; --sk-faint: #EDF0F4; --sk-soft: #F5F7FA;
+      --sk-track: #E1E6ED; --sk-strong: #232A35; --sk-ipo: #E4E8EE;
+      --sk-accent: #2B4ACB; --sk-accent-hover: #1F37A0; --sk-accent-ink: #FFFFFF; --sk-accent-soft: #E3E8F7; --sk-accent-ring: #D3DCF6;
+      --sk-warn: #9E2F22; --sk-good: #1A6B3A; --sk-gold: #F2D457; --sk-gold-ink: #141A24;
+      --sk-sea: #D3E5EE; --sk-paper: #FFFFFF; --sk-paper-ink: #141A24;
       --sk-sans: Inter, system-ui, -apple-system, 'Segoe UI', sans-serif;
       --sk-display: 'Space Grotesk', Inter, system-ui, sans-serif;
     }
+    html[data-theme=dark] {
+      color-scheme: dark;
+      --sk-ground: #0E131A; --sk-card: #171D27; --sk-line: #2B3442; --sk-line-2: #3D4859; --sk-divider: #232B37;
+      --sk-ink: #ECEFF4; --sk-muted: #B4BDCA; --sk-soft-ink: #9AA4B3; --sk-faint: #222A36; --sk-soft: #1C2330;
+      --sk-track: #2B3442; --sk-strong: #DDE3EC; --sk-ipo: #3A4455;
+      --sk-accent: #8AA0FF; --sk-accent-hover: #A9B9FF; --sk-accent-ink: #0E131A; --sk-accent-soft: #263152; --sk-accent-ring: #33406A;
+      --sk-warn: #FF9A8B; --sk-good: #7CDCA4; --sk-gold: #F2D457; --sk-gold-ink: #141A24;
+      /* the board and the engine's light panels stay light, like paper on a dark table */
+      --sk-sea: #9FB8C6; --sk-paper: #F3F5F8; --sk-paper-ink: #141A24;
+    }
     body { margin: 0; background: var(--sk-ground); color: var(--sk-ink); font-family: var(--sk-sans); }
-    #app { font-family: var(--sk-sans); }
+    #app { font-family: var(--sk-sans); background-color: var(--sk-ground) !important; color: var(--sk-ink) !important; transition: none !important; }
+    html[data-theme=dark] #app a:not(.sk-btn) { color: var(--sk-accent); }
+    html[data-theme=dark] #app input, html[data-theme=dark] #app select, html[data-theme=dark] #app textarea {
+      background: var(--sk-soft); color: var(--sk-ink); border: 1px solid var(--sk-line-2);
+    }
+    .sk-theme-toggle {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 40px; padding: 0 12px;
+      border-radius: 10px; border: 1px solid var(--sk-line-2); background: var(--sk-card); color: var(--sk-ink);
+      font: 600 14px/1 var(--sk-sans); cursor: pointer;
+    }
+    .sk-theme-toggle:hover { background: var(--sk-soft); }
+    .sk-theme-toggle:focus-visible { outline: 2px solid var(--sk-accent); outline-offset: 2px; }
+    .sk-theme-toggle .sk-icon-sun { display: none; }
+    html[data-theme=dark] .sk-theme-toggle .sk-icon-sun { display: inline; }
+    html[data-theme=dark] .sk-theme-toggle .sk-icon-moon { display: none; }
     #header.sk-topbar {
       display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px;
       margin: 0 -2vmin; padding: 12px 24px; background: var(--sk-card); border-bottom: 1px solid var(--sk-line);
@@ -24,7 +51,7 @@ module View
     .sk-brand-year { font: 700 22px/1 var(--sk-display); letter-spacing: -0.01em; }
     .sk-brand-kanji { font: 600 20px/1 'Noto Sans JP', var(--sk-sans); }
     .sk-brand-name { font: 500 14px/1 var(--sk-sans); color: var(--sk-muted); }
-    .sk-nav { display: flex; flex-wrap: wrap; gap: 4px; margin-left: auto; }
+    .sk-nav { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; margin-left: auto; }
     .sk-nav a {
       display: inline-flex; align-items: center; min-height: 40px; padding: 0 12px; border-radius: 10px;
       font: 600 14px/1 var(--sk-sans); color: var(--sk-ink); text-decoration: none;
@@ -55,7 +82,7 @@ module View
     }
     .sk-btn:hover { background: var(--sk-soft); }
     .sk-btn--primary { background: var(--sk-accent); border-color: var(--sk-accent); color: var(--sk-accent-ink); }
-    .sk-btn--primary:hover { background: #1F37A0; }
+    .sk-btn--primary:hover { background: var(--sk-accent-hover); border-color: var(--sk-accent-hover); }
     .sk-btn--danger { color: var(--sk-warn); }
     .sk-btn--icon { width: 44px; padding: 0; }
     .sk-btn--wide { width: 100%; min-height: 52px; font-size: 16px; }

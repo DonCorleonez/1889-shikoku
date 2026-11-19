@@ -26,8 +26,9 @@ async function seed(page, n, id) {
   }, [n, id]);
 }
 
-async function shot(name, path, { width = 1440, height = 1000, seeds = [] } = {}) {
+async function shot(name, path, { width = 1440, height = 1000, seeds = [], theme = 'light' } = {}) {
   const ctx = await browser.newContext({ viewport: { width, height }, deviceScaleFactor: 1 });
+  await ctx.addInitScript((t) => { try { localStorage.setItem('sk_theme', t); } catch (e) {} }, theme);
   const page = await ctx.newPage();
   page.on('pageerror', (e) => problems.push(`${name}: pageerror: ${e.message}`));
   page.on('console', (m) => { if (m.type() === 'error') problems.push(`${name}: console: ${m.text()}`); });
@@ -52,6 +53,9 @@ await shot('05-game-or-phone', '/hotseat/hs_shotor_262', { width: 390, height: 8
 await shot('06-home-phone', '/', { width: 390, height: 844, seeds: saves });
 await shot('07-game-classic', '/hotseat/hs_shotor_262?classic=1', { seeds: saves });
 await shot('08-new-game-form', '/new_game');
+await shot('09-game-or-dark', '/hotseat/hs_shotor_262', { seeds: saves, theme: 'dark' });
+await shot('10-home-dark', '/', { seeds: saves, theme: 'dark' });
+await shot('11-game-sr-dark', '/hotseat/hs_shotsr_230', { seeds: saves, theme: 'dark' });
 
 fs.writeFileSync(`${out}/problems.txt`, problems.join('\n') + '\n');
 console.log(problems.length ? problems.join('\n') : 'no page errors');

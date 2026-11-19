@@ -32,7 +32,7 @@ module View
       # Seat colours for the share bars; distinct in lightness, not hue alone.
       SEAT_COLORS = %w[#2B4ACB #7A8699 #B4BCC8 #4A5568 #8E9BF0 #D5DBE3].freeze
       POOL_COLOR = '#E2B93B'
-      IPO_COLOR = '#EDF0F4'
+      IPO_COLOR = 'var(--sk-ipo)'
       # label and the word that identifies the step in its description
       OR_STEPS = [
         { label: 'Track', word: 'track' },
@@ -194,6 +194,16 @@ module View
         SEAT_COLORS[@game.players.index(player) % SEAT_COLORS.size]
       end
 
+      # White or dark text, whichever reads at 4.5:1 or better on the colour.
+      def text_on(hex)
+        channels = [1, 3, 5].map do |i|
+          c = hex[i, 2].to_i(16) / 255.0
+          c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055)**2.4
+        end
+        luminance = (0.2126 * channels[0]) + (0.7152 * channels[1]) + (0.0722 * channels[2])
+        1.05 / (luminance + 0.05) >= 4.5 ? '#FFFFFF' : '#141A24'
+      end
+
       def ai_level(player)
         @ai_seats[player.id.to_s]
       end
@@ -213,7 +223,8 @@ module View
 
           h(classes, [
             h('div.os-player-head', [
-              h('span.os-avatar', { style: { background: seat_color(player) } }, initials(player.name)),
+              h('span.os-avatar', { style: { background: seat_color(player), color: text_on(seat_color(player)) } },
+                initials(player.name)),
               h('div.os-player-name', [h('strong', player.name), h('span.os-badges', badges)]),
               h('div.os-player-cash', [h('strong.os-num', currency(player.cash)), h('span', 'cash')]),
             ]),
@@ -285,7 +296,7 @@ module View
           trains = corp.trains.map { |t| h('span.os-train', t.name) }
           trains = [h('span.os-no-train', 'no train')] if trains.empty?
           tokens = corp.tokens.map do |t|
-            h('span.os-token', { style: { background: t.used ? corp.color : '#FFFFFF', borderColor: corp.color } })
+            h('span.os-token', { style: { background: t.used ? corp.color : 'transparent', borderColor: corp.color } })
           end
 
           h(classes, [
@@ -392,7 +403,9 @@ module View
         badge = if entity.corporation?
                   corp_chip(entity, 'os-chip--lg')
                 elsif entity.player?
-                  h('span.os-avatar.os-avatar--lg', { style: { background: seat_color(entity) } }, initials(entity.name))
+                  h('span.os-avatar.os-avatar--lg', {
+                      style: { background: seat_color(entity), color: text_on(seat_color(entity)) },
+                    }, initials(entity.name))
                 end
 
         children = [
