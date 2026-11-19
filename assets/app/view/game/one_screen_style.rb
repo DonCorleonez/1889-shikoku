@@ -44,7 +44,7 @@ module View
       #shikoku-one-screen .os-round-indicator { font-weight: 900; }
 
       /* top band: players side by side + latest moves */
-      #shikoku-one-screen .os-band { display: flex; flex-wrap: wrap; gap: 16px; align-items: stretch; }
+      #shikoku-one-screen .os-band { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start; }
       #shikoku-one-screen .os-players-card { flex: 999 1 640px; }
       #shikoku-one-screen .os-latest-card { flex: 1 1 360px; max-width: 520px; }
       #shikoku-one-screen .os-players-card .os-players { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; }

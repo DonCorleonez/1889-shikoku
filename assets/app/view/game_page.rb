@@ -315,7 +315,7 @@ module View
     private
 
     def render_title
-      title = "#{@game.class.display_title} - #{@game.id} - 18xx.Games"
+      title = "#{@game.class.display_title} - #{@game.id} - 1889 Shikoku"
       title = "* #{title}" if @game.active_players_id.include?(@user&.dig('id'))
       `document.title = #{title}`
       change_favicon(active_player)

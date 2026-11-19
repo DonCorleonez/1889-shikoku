@@ -106,11 +106,9 @@ module View
         players = @game.players
 
         h('ol.os-latest', entries.map do |message|
-          if message.start_with?('--')
-            next h('li.os-latest-round', message.sub(/^-+\s*/, '').sub(/\s*-+$/, ''))
-          end
+          next h('li.os-latest-round', message.sub(/^-+\s*/, '').sub(/\s*-+$/, '')) if message.start_with?('--')
 
-          first = message.split(' ').first.to_s
+          first = message.split.first.to_s
           lead = if (corp = corps[first])
                    corp_chip(corp, 'os-chip--sm')
                  elsif (player = players.find { |pl| message.start_with?(pl.name) })
@@ -149,7 +147,7 @@ module View
                     ((((xs / 2) + 0.5) * Map::SIDE_TO_SIDE) + (2 * Map::GAP)) + 1
                   end
         # side columns + gaps + card padding on wide screens; page padding on narrow ones
-        available = width >= 1280 ? width - 860 : width - 80
+        available = width >= 1280 ? width - 760 : width - 80
         zoom = available / natural
         zoom = 1.0 if zoom > 1.0
         zoom = 0.35 if zoom < 0.35 || ys.zero?
