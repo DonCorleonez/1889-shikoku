@@ -29,7 +29,7 @@ module View
     }
     body { margin: 0; background: var(--sk-ground); color: var(--sk-ink); font-family: var(--sk-sans); }
     #app { font-family: var(--sk-sans); background-color: var(--sk-ground) !important; color: var(--sk-ink) !important; transition: none !important; }
-    html[data-theme=dark] #app a:not(.sk-btn) { color: var(--sk-accent); }
+    html[data-theme=dark] #app a:not(.sk-btn):not(.sk-brand) { color: var(--sk-accent); }
     html[data-theme=dark] #app input, html[data-theme=dark] #app select, html[data-theme=dark] #app textarea {
       background: var(--sk-soft); color: var(--sk-ink); border: 1px solid var(--sk-line-2);
     }

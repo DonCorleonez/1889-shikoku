@@ -229,7 +229,9 @@ module View
       html[data-theme=dark] #shikoku-one-screen #map_controls button, html[data-theme=dark] #shikoku-one-screen #map_zoom button {
         background: #FFFFFF; color: #141A24; border-color: #B9C2CF;
       }
-      html[data-theme=dark] #shikoku-one-screen .os-tools { color: var(--sk-ink); }
+      html[data-theme=dark] #shikoku-one-screen .os-tools { color: var(--sk-paper-ink); background: var(--sk-paper); border-radius: 10px; padding: 10px; border-top: 0; }
+      html[data-theme=dark] #shikoku-one-screen .os-tools a, html[data-theme=dark] #shikoku-one-screen .os-action-form a,
+      html[data-theme=dark] #shikoku-one-screen .os-details-body a, html[data-theme=dark] #shikoku-one-screen .os-log-card a { color: #2B4ACB !important; }
 
       /* extras */
       #shikoku-one-screen .os-extra { display: flex; flex-direction: column; gap: 10px; }
