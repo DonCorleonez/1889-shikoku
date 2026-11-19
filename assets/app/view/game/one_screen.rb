@@ -154,8 +154,7 @@ module View
         players = @game.players
         scroll = ->(vnode) { `var el = #{vnode}.elm; if (el) { el.scrollTop = el.scrollHeight; }` }
 
-        h('ol.os-latest', { hook: { insert: scroll, postpatch: ->(_old, vnode) { scroll.call(vnode) } } },
-          entries.map do |message|
+        items = entries.map do |message|
           next h('li.os-latest-round', message.sub(/^-+\s*/, '').sub(/\s*-+$/, '')) if message.start_with?('--')
 
           first = message.split.first.to_s
@@ -169,7 +168,9 @@ module View
                    h('span.os-latest-dot')
                  end
           h('li.os-latest-item', [lead, h('span.os-latest-text', emphasize_money(message))])
-        end)
+        end
+
+        h('ol.os-latest', { hook: { insert: scroll, postpatch: ->(_old, vnode) { scroll.call(vnode) } } }, items)
       end
 
       # Money amounts in bold, e.g. "runs a 4 train for ¥110".
@@ -181,11 +182,9 @@ module View
 
       # The map is drawn in absolute pixels (the tile selector is positioned in
       # them too), so it is fitted with the map's own zoom setting rather than
-      # CSS scaling. Only when the player has not chosen a zoom yet; the
-      # +/- buttons above the map still change and remember it.
-      # Bumped when the layout changes how much room the board gets, so a zoom
-      # fitted for an older layout is fitted again once (the +/- buttons above
-      # the map still change and remember it afterwards).
+      # CSS scaling. The version is bumped when the layout changes how much room
+      # the board gets, so a zoom fitted for an older layout is fitted again
+      # once; the +/- buttons above the map still change and remember it.
       MAP_FIT_VERSION = 'table-1'
 
       def ensure_fitting_map_zoom
@@ -301,7 +300,8 @@ module View
 
         if (level = ai_level(player))
           return h('span.os-turn.os-turn--ai', { attrs: { role: 'status' } }, [
-            h('span.os-turn-dot'), "#{player.name} is playing (AI #{level.to_s.capitalize})"
+            h('span.os-turn-dot'),
+            "#{player.name} is playing (AI #{level.to_s.capitalize})",
           ])
         end
 
@@ -319,7 +319,10 @@ module View
         entity = current_entity
         return unless entity
 
-        entity.player? ? entity : entity.owner&.player? && entity.owner
+        return entity if entity.player?
+
+        owner = entity.owner
+        owner if owner&.player?
       end
 
       # ---- players ----
