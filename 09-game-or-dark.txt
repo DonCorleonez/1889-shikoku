@@ -1,0 +1,445 @@
+1889
+四国
+Shikoku
+Tutorial
+Import save
+Dark mode
+Game
+Entities
+Map
+Market
+Info
+Tiles
+Spreadsheet
+Tools
+AI players:
+Player 2
+Player 3
+Easy
+Normal
+Hard
+Player 1
+Easy
+Normal
+Hard
+Speed 
+Slow (2.5 s)
+Normal (1.5 s)
+Fast (0.8 s)
+Resume AI
+Paused.
+OR 5.2 of 2
+Phase 4
+UR · Lay/Upgrade Track
+Bank
+¥4994
+✓
+ISR 1
+✓
+SR 1
+✓
+OR 1.1
+✓
+SR 2
+✓
+OR 2.1
+✓
+SR 3
+✓
+OR 3.1
+✓
+SR 4
+✓
+OR 4.1
+✓
+OR 4.2
+✓
+SR 5
+✓
+OR 5.1
+•
+OR 5.2
+•
+SR 6
+PROJECTED
+•
+OR 6.1
+PROJECTED
+Map
+Stock market
+SHIKOKU
+-0+
+20
+Saijou
+20
+Niihama
+Ikeda
+Sukumo
+Anan
+Nahari
+20
+Matsuyama
+30
+Marugame
+AR
+Tokushima
+KU
+20
+Kubokawa
+10
+Ritsurin
+Kouen
+Nakamura
+Nangoku
+Muki
+Komatsujima
+80
+80
+80
+80
+80
+80
+80
+80
+80
+80
+80
+80
+80
+80
+80
+80
+60
+H
+80
+Kotohira
+30
+Ohzu
+40
+T
+Takamatsu
+40
+Uwajima
+20
+Yawatahama
+20
+Muroto
+30
+60
+D100
+Imabari
+20
+40
+D80
+Sakaide &
+Okayama
+20
+40
+D80
+Naruto
+& Awaji
+30
+K
+80
+Kouchi
+A
+B
+C
+D
+E
+F
+G
+H
+I
+J
+K
+L
+A
+B
+C
+D
+E
+F
+G
+H
+I
+J
+K
+L
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+Player Colors ❌
+Simple Logos ❌
+Location Names ✅
+Hex Coordinates ❌
+Tile Numbers ❌
+Starting Map ❌
+Show Last Route and Tile For:
+None
+IR ¥110
+SR ¥220
+KO ¥130
+TR ¥110
+UR ¥150
+P2
+Your turn
+UR
+Uwajima Railway
+¥700 treasury · 1 train
+Track
+Token
+Routes
+Dividend
+Trains
+[HOTSEAT] Shikoku 1889: Phase 4 - Operating Round 5.2 (of 2) - Lay/Upgrade Track
+Uwajima Railway
+UR
+3
+¥700
+40
+B7
+C4
+Shareholder	Shares	Price
+IPO	3	¥80
+Market	2	¥65
+Player 2	* 5
+Company
+Income
+Sumitomo Mines Railway
+¥15
+Dougo Railway
+¥15
+Order: 2
+Last Run: ¥150
+History
+|<
+<<
+<
+UndoRestart Last TurnRedo
+TR (Player 2)
+UR (Player 2)
+IR (Player 3)
+SR (Player 3)
+KO (Player 1)
+Skip (Track)
+PLAYERS
+P2
+Player 2
+Human
+Priority
+Leading
+¥130
+cash
+Value
+¥830
+Certs
+8/19
+Holds
+TR
+UR
+P3
+Player 3
+AI · Hard
+¥211
+cash
+Value
+¥751
+Certs
+3/19
+Holds
+IR
+SR
+P1
+Player 1
+AI · Normal
+¥155
+cash
+Value
+¥700
+Certs
+3/19
+Holds
+SR
+KO
+TR
+GAME LOG
+Full log
+IR
+IR passes place a token
+IR
+IR runs a 3 train for ¥50: F1-E2
+IR
+IR runs a 4 train for ¥60: E2-F3-G4
+IR
+IR pays out ¥110 = ¥11 per share (¥44 to Player 3, ¥33 to IR)
+IR's share price moves right from ¥55 to ¥60
+IR
+IR passes buy trains
+IR
+IR skips buy companies
+P3
+Player 3 operates SR
+SR
+SR lays tile #9 with rotation 1 on H3
+SR
+SR skips place a token
+SR
+SR runs a 4 train for ¥110: J1-I2-J3-K4-K6-L7
+SR
+SR runs a 3 train for ¥110: I4-I2-H3-G4
+SR
+SR pays out ¥220 = ¥22 per share (¥132 to Player 3, ¥22 to Player 1)
+SR's share price moves up from ¥45 to ¥50
+SR
+SR passes buy trains
+SR
+SR skips buy companies
+P1
+Player 1 operates KO
+KO
+KO lays tile #24 with rotation 3 on K6
+KO
+KO passes place a token
+KO
+KO runs a 3 train for ¥130: J3-K4-J3-I2-I4
+KO
+KO pays out ¥130 = ¥13 per share (¥78 to Player 1, ¥52 to KO)
+KO's share price moves up from ¥40 to ¥45
+KO
+KO passes buy trains
+KO
+KO skips buy companies
+OPERATING ROUND 5.2 (OF 2)
+UR
+UR collects ¥15 from Dougo Railway
+UR
+UR collects ¥15 from Sumitomo Mines Railway
+SR
+SR collects ¥10 from Ehime Railway
+SR
+SR collects ¥20 from South Iyo Railway
+KO
+KO collects ¥5 from Mitsubishi Ferry
+KO
+KO collects ¥5 from Takamatsu E-Railroad
+P2
+Player 2 operates TR
+TR
+TR lays tile #9 with rotation 1 on D9
+TR
+TR passes place a token
+TR
+TR runs a 4 train for ¥110: F9-E8-D9-C10-C8-B7-B5-B3
+TR
+TR pays out ¥110 = ¥11 per share (¥55 to Player 2, ¥33 to Player 1)
+TR's share price moves right from ¥70 to ¥75
+TR
+TR buys a 3 train for ¥450 from UR
+TR
+TR skips buy companies
+P2
+Player 2 operates UR
+CORPORATIONS
+OR order
+Player 2
+Player 3
+Player 1
+Pool
+IPO
+TR
+Tosa Electric Railway
+President Player 2
+#1
+¥75
+• par ¥75
+cash ¥0
+4
+3
+UR
+Uwajima Railway
+President Player 2
+Operating
+¥65
+▼ par ¥80
+cash ¥700
+3
+IR
+Iyo Railway
+President Player 3
+#3
+¥60
+▼ par ¥100
+cash ¥288
+3
+4
+SR
+Sanuki Railway
+President Player 3
+#4
+¥50
+▼ par ¥65
+cash ¥118
+3
+4
+KO
+Takamatsu & Kotohira Electric Railway
+President Player 1
+#5
+¥45
+▼ par ¥70
+cash ¥404
+3
+AR
+Awa Railroad
+Not started
+KU
+Tosa Kuroshio Railway
+Not started
+TRAINS · PHASE
+2
+3
+4
+5
+6
+D
+
+Phase 4: train limit 3, yellow, green tiles, 2 ORs per set.
+
+4
+¥300
+1 left
+5
+¥450
+3 left
+6
+¥630
+2 left
+D
+¥1100
+unlim

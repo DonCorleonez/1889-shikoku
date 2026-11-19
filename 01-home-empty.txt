@@ -1,0 +1,57 @@
+1889
+四国
+Shikoku
+Tutorial
+Import save
+Dark mode
+Build the railways of Shikoku.
+
+1889 for 2 to 6 players on one screen. Any seat can be played by the computer at Easy, Normal or Hard.
+
+AR
+Awa Railroad
+IR
+Iyo Railway
+SR
+Sanuki Railway
+KO
+Takamatsu & Kotohira Electric Railway
+TR
+Tosa Electric Railway
+KU
+Tosa Kuroshio Railway
+UR
+Uwajima Railway
+New game
+Play the tutorial
+Saved games
+Stored in this browser
+
+No saved games in this browser yet. Start one with the form, or import a save file.
+
+New game
+1
+Seat 1 name
+Human
+AI
+2
+Seat 2 name
+Human
+AI
+Easy
+Normal
+Hard
+3
+Seat 3 name
+Human
+AI
+Easy
+Normal
+Hard
++ Add seat
+Shuffle seats
+Beginner game
+Simpler privates, more tiles available
+Start game · 3 players
+
+Games save automatically in this browser. Export a file to move a game to another device.

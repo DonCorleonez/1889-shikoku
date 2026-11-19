@@ -1,0 +1,427 @@
+1889
+四国
+Shikoku
+Tutorial
+Import save
+Dark mode
+Game
+Entities
+Map
+Market
+Info
+Tiles
+Spreadsheet
+Tools
+AI players:
+Player 3
+Easy
+Normal
+Hard
+Player 1
+Easy
+Normal
+Hard
+Player 2
+Speed 
+Slow (2.5 s)
+Normal (1.5 s)
+Fast (0.8 s)
+Resume AI
+Paused.
+SR 5
+Phase 4
+Player 3 · Buy or Sell Shares
+Bank
+¥5313
+✓
+ISR 1
+✓
+SR 1
+✓
+OR 1.1
+✓
+SR 2
+✓
+OR 2.1
+✓
+SR 3
+✓
+OR 3.1
+✓
+SR 4
+✓
+OR 4.1
+✓
+OR 4.2
+•
+SR 5
+•
+OR 5.1
+PROJECTED
+•
+OR 5.2
+PROJECTED
+•
+SR 6
+PROJECTED
+Map
+Stock market
+SHIKOKU
+-0+
+20
+Saijou
+Niihama
+Ikeda
+Sukumo
+Anan
+Nahari
+20
+Matsuyama
+30
+Marugame
+AR
+Tokushima
+KU
+Kubokawa
+10
+Ritsurin
+Kouen
+Nakamura
+Nangoku
+Muki
+Komatsujima
+80
+80
+80
+80
+80
+80
+80
+80
+80
+80
+80
+80
+80
+80
+80
+80
+60
+H
+80
+Kotohira
+30
+Ohzu
+40
+T
+Takamatsu
+40
+Uwajima
+20
+Yawatahama
+20
+Muroto
+30
+60
+D100
+Imabari
+20
+40
+D80
+Sakaide &
+Okayama
+20
+40
+D80
+Naruto
+& Awaji
+TR
+30
+K
+80
+Kouchi
+A
+B
+C
+D
+E
+F
+G
+H
+I
+J
+K
+L
+A
+B
+C
+D
+E
+F
+G
+H
+I
+J
+K
+L
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+Player Colors ❌
+Simple Logos ❌
+Location Names ✅
+Hex Coordinates ❌
+Tile Numbers ❌
+Starting Map ❌
+Show Last Route and Tile For:
+None
+IR ¥70
+SR ¥110
+KO ¥130
+UR ¥110
+Player 3 is playing (AI Hard)
+P3
+Player 3
+¥35 cash · played by AI (Hard)
+[HOTSEAT] Shikoku 1889: Phase 4 - Stock Round 5 - Buy or Sell Shares
+Tosa Electric Railway
+TR
+None
+¥750
+F9
+40
+40
+Shareholder	Shares	Price
+IPO	3	¥75
+Market		¥75
+Player 2	* 5
+Player 1	2
+Order: 1
+Uwajima Railway
+UR
+3 3
+¥160
+40
+B7
+C4
+Shareholder	Shares	Price
+IPO	3	¥80
+Market	2	¥60
+Player 2	* 5	Sold
+Player 3		Sold
+Player 1		Sold
+Company
+Income
+Sumitomo Mines Railway
+¥15
+Dougo Railway
+¥15
+Order: 2
+Last Run: ¥110
+Iyo Railway
+IR
+3 4
+¥255
+40
+E2
+Shareholder	Shares	Price
+IPO	3	¥100
+Market	3	¥55
+Player 3	* 4
+Player 1		Sold
+Player 2		Sold
+Order: 3
+Last Run: ¥70
+Sanuki Railway
+SR
+3 4
+¥58
+I2
+I4
+Shareholder	Shares	Price
+IPO	3	¥65
+Market		¥45
+Player 3	*L 6
+Player 1	1
+Player 2		Sold
+Company
+Income
+Ehime Railway
+0/1
+¥10
+South Iyo Railway
+¥20
+Order: 4
+Last Run: ¥110
+Takamatsu & Kotohira Electric Railway
+KO
+3
+¥332
+40
+K4
+Shareholder	Shares	Price
+Market	4	¥40
+Player 1	*L 6
+Player 3		Sold
+Company
+Income
+Takamatsu E-Railroad
+¥5
+Mitsubishi Ferry
+1/1
+¥5
+Order: 5
+Last Run: ¥130
+Awa Railroad
+AR
+50% to float
+K8
+40
+Shareholder	Shares	Price
+IPO	10	
+Tosa Kuroshio Railway
+KU
+50% to float
+C10
+Shareholder	Shares	Price
+IPO	10	
+History
+|<
+<<
+<
+UndoRestart Last TurnRedo
+Player 3
+Player 1
+Player 2
+Pass (Share)
+PLAYERS
+P3
+Player 3
+AI · Hard
+¥35
+cash
+Value
+¥525
+Certs
+3/19
+Holds
+IR
+SR
+P1
+Player 1
+AI · Normal
+¥97
+cash
+Value
+¥532
+Certs
+2/19
+Holds
+SR
+KO
+TR
+P2
+Player 2
+Human
+Priority
+Leading
+¥0
+cash
+Value
+¥675
+Certs
+8/19
+Holds
+TR
+UR
+GAME LOG
+Full log
+P1
+Player 1 buys a 10% share of IR from the market for ¥70
+P1
+Player 1 sells 3 shares of IR and receives ¥210
+IR's share price moves down from ¥70 to ¥55
+P2
+Player 2 buys a 10% share of SR from the market for ¥55
+P2
+Player 2 sells 2 shares of SR and receives ¥110
+SR's share price moves down from ¥55 to ¥45
+P3
+Player 3 buys a 10% share of SR from the market for ¥45
+P3
+Player 3 declines to sell shares
+P1
+Player 1 buys a 10% share of UR from the market for ¥65
+P1
+Player 1 sells a 10% share of UR and receives ¥65
+UR's share price moves down from ¥65 to ¥60
+P2
+Player 2 sells a 10% share of UR and receives ¥60
+P2
+Player 2 pars TR at ¥75
+P2
+Player 2 buys a 20% share of TR from the IPO for ¥150
+P2
+Player 2 becomes the president of TR
+P3
+Player 3 sells 2 shares of KO and receives ¥100
+KO's share price moves down from ¥50 to ¥40
+P3
+Player 3 buys a 10% share of SR from the market for ¥45
+P1
+Player 1 passes
+P2
+Player 2 buys a 10% share of TR from the IPO for ¥75
+P2
+Player 2 declines to sell shares
+P3
+Player 3 buys a 10% share of SR from the market for ¥45
+P3
+Player 3 declines to sell shares
+P1
+Player 1 passes
+P2
+Player 2 buys a 10% share of TR from the IPO for ¥75
+P2
+Player 2 declines to sell shares
+P3
+Player 3 passes
+P1
+Player 1 passes
+P2
+Player 2 buys a 10% share of TR from the IPO for ¥75
+TR
+TR floats
+TR
+TR receives ¥750
+P2
+Player 2 declines to sell shares
+P3
+Player 3 passes
+P1
+Player 

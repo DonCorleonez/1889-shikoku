@@ -1,0 +1,118 @@
+1889
+四国
+Shikoku
+Tutorial
+Import save
+Dark mode
+Game
+Entities
+Map
+Market
+Info
+Tiles
+Spreadsheet
+Tools
+AI players:Player 2Player 3
+Easy
+Normal
+Hard
+Player 1
+Easy
+Normal
+Hard
+Speed 
+Slow (2.5 s)
+Normal (1.5 s)
+Fast (0.8 s)
+Resume AIPaused.
+[HOTSEAT] Shikoku 1889: Phase 4 - Operating Round 5.2 (of 2) - Lay/Upgrade Track
+Copy Transcript 📋
+Log ✅Chat ✅
+-- 2026-11-19 --
+[06:27] -- Phase 2 (Operating Rounds: 1 | Train Limit: 4 | Available Tiles: Yellow) --
+[06:27] Player 1 bids ¥35 for Mitsubishi Ferry
+[06:27] Player 2 bids ¥55 for Sumitomo Mines Railway
+[06:27] Player 3 bids ¥45 for Ehime Railway
+[06:27] Player 1 buys Takamatsu E-Railroad for ¥20
+[06:27] Player 1 wins the auction for Mitsubishi Ferry with the only bid of ¥35
+[06:27] Player 3 wins the auction for Ehime Railway with the only bid of ¥45
+[06:27] Player 2 wins the auction for Sumitomo Mines Railway with the only bid of ¥55
+[06:27] Player 2 buys Dougo Railway for ¥60
+[06:27] Player 3 buys South Iyo Railway for ¥80
+[06:27] Player 1 has priority deal
+[06:27] -- Stock Round 1 --
+[06:27] Player 1 pars KO at ¥70
+[06:27] Player 1 buys a 20% share of KO from the IPO for ¥140
+[06:27] Player 1 becomes the president of KO
+[06:27] Player 2 passes
+[06:27] Player 3 passes
+[06:27] Player 1 buys a 10% share of KO from the IPO for ¥70
+[06:27] Player 2 buys a 10% share of KO from the IPO for ¥70
+[06:27] Player 3 passes
+[06:27] Player 1 buys a 10% share of KO from the IPO for ¥70
+[06:27] KO floats
+[06:27] KO receives ¥700
+[06:27] Player 2 buys a 10% share of KO from the IPO for ¥70
+[06:27] Player 3 passes
+[06:27] Player 1 passes
+[06:27] Player 2 buys a 10% share of KO from the IPO for ¥70
+[06:27] Player 3 passes
+[06:27] Player 1 buys a 10% share of KO from the IPO for ¥70
+[06:27] Player 2 buys a 10% share of KO from the IPO for ¥70
+[06:27] Player 3 passes
+[06:27] Player 1 has no valid actions and passes
+[06:27] Player 2 has no valid actions and passes
+[06:27] Player 3 has priority deal
+[06:27] -- Operating Round 1.1 (of 1) --
+[06:27] Player 3 collects ¥10 from Ehime Railway
+[06:27] Player 3 collects ¥20 from South Iyo Railway
+[06:27] Player 1 collects ¥5 from Mitsubishi Ferry
+[06:27] Player 1 collects ¥5 from Takamatsu E-Railroad
+[06:27] Player 2 collects ¥15 from Dougo Railway
+[06:27] Player 2 collects ¥15 from Sumitomo Mines Railway
+[06:27] KO places a token on K4
+[06:27] Player 1 operates KO
+[06:27] KO lays tile #8 with rotation 3 on J3
+-- 2023-09-21 --
+[06:17] KO passes lay track
+[06:17] KO skips place a token
+[06:17] KO skips run routes
+[06:17] KO does not run
+[06:17] KO's share price moves left from ¥70 to ¥65
+-- 2026-11-19 --
+[06:27] KO buys a 2 train for ¥80 from The Depot
+[06:27] KO buys a 2 train for ¥80 from The Depot
+[06:27] KO passes buy trains
+[06:27] KO skips buy companies
+[06:27] -- Stock Round 2 --
+[06:27] Player 3 pars SR at ¥65
+[06:27] Player 3 buys a 20% share of SR from the IPO for ¥130
+[06:27] Player 3 becomes the president of SR
+[06:27] Player 1 passes
+[06:27] Player 2 passes
+[06:27] Player 3 buys a 10% share of SR from the IPO for ¥65
+[06:27] Player 3 declines to sell shares
+[06:27] Player 1 passes
+[06:27] Player 2 passes
+[06:27] Player 3 buys a 10% share of SR from the IPO for ¥65
+[06:27] Player 3 declines to sell shares
+[06:27] Player 1 passes
+[06:27] Player 2 passes
+[06:27] Player 3 buys a 10% share of SR from the IPO for ¥65
+[06:27] SR floats
+[06:27] SR receives ¥650
+[06:27] Player 3 declines to sell shares
+[06:27] Player 1 passes
+[06:27] Player 2 passes
+[06:27] Player 3 passes
+[06:27] Player 1 has priority deal
+[06:27] -- Operating Round 2.1 (of 1) --
+[06:27] Player 1 collects ¥5 from Mitsubishi Ferry
+[06:27] Player 1 collects ¥5 from Takamatsu E-Railroad
+[06:27] Player 2 collects ¥15 from Dougo Railway
+[06:27] Player 2 collects ¥15 from Sumitomo Mines Railway
+[06:27] Player 3 collects ¥10 from Ehime Railway
+[06:27] Player 3 collects ¥20 from South Iyo Railway
+[06:27] SR places a token on I2
+[06:27] Player 3 operates SR
+[06:27] SR lays tile #6 with rotation 4 on
