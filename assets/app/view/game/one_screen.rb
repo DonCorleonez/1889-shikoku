@@ -48,20 +48,23 @@ module View
           h(:style, ONE_SCREEN_STYLE),
           render_status_bar,
           h(OneScreenRoundTracker, game: @game),
+          h('div.os-band', [
+            card('Players', [render_players], 'os-players-card'),
+            card('Latest moves', [render_latest_moves], 'os-latest-card',
+                 h('a.os-card-link', { attrs: { href: '#os-full-log' }, on: { click: ->(e) { open_full_log(e) } } },
+                   'Full log')),
+          ]),
           h('main.os-workspace', [
             h('div.os-col.os-col-left', [
-              card('Players', [render_players]),
               card('Corporations', [render_share_legend, render_corporations], '', operating_order_hint),
+              card('Trains · Phase', render_trains_and_phase, 'os-trains-card'),
             ]),
             h('div.os-col.os-col-center', [
               card('Shikoku', [h('div.os-map', [h(Map, game: @game, opacity: 1.0, tile_selector: @tile_selector)])],
                    'os-map-card'),
-              h('div.os-row', [
-                card(market_heading, [h('div.os-stock-zoom', [
-                                        h(StockMarket, game: @game, show_bank: false, embedded_layout: true),
-                                      ])], 'os-market-card'),
-                card('Trains · Phase', render_trains_and_phase, 'os-trains-card'),
-              ]),
+              card(market_heading, [h('div.os-stock-zoom', [
+                                      h(StockMarket, game: @game, show_bank: false, embedded_layout: true),
+                                    ])], 'os-market-card'),
             ]),
             h('div.os-col.os-col-right', [
               card('Current action', [
@@ -70,14 +73,62 @@ module View
                 h('div.os-action-form', [@action_panel]),
                 h('div.os-tools', @controls),
               ], 'os-action-card'),
-              card('Game log', [@game_log], 'os-log-card'),
             ]),
           ]),
           h('div.os-extra', [
+            details('Full game log', [@game_log], 'os-full-log'),
             details('Tile manifest', [h(TileManifest, game: @game, tile_selector: @tile_selector)]),
             details('Full game info', [h(GameInfo, game: @game)]),
           ]),
         ])
+      end
+
+      def open_full_log(event)
+        Native(event).preventDefault
+        %x{
+          var el = document.getElementById('os-full-log');
+          if (el) { el.open = true; el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+        }
+      end
+
+      # ---- latest moves: the last few log lines, newest first ----
+
+      LATEST_COUNT = 6
+
+      def render_latest_moves
+        entries = @game.log.map { |e| e.respond_to?(:message) ? e.message.to_s : e.to_s }
+                       .reject { |m| m.strip.empty? }
+                       .last(LATEST_COUNT)
+                       .reverse
+        return h('p.os-muted', 'No moves yet.') if entries.empty?
+
+        corps = @game.corporations.to_h { |c| [c.id, c] }
+        players = @game.players
+
+        h('ol.os-latest', entries.map do |message|
+          if message.start_with?('--')
+            next h('li.os-latest-round', message.sub(/^-+\s*/, '').sub(/\s*-+$/, ''))
+          end
+
+          first = message.split(' ').first.to_s
+          lead = if (corp = corps[first])
+                   corp_chip(corp, 'os-chip--sm')
+                 elsif (player = players.find { |pl| message.start_with?(pl.name) })
+                   h('span.os-avatar.os-avatar--xs', {
+                       style: { background: seat_color(player), color: text_on(seat_color(player)) },
+                     }, initials(player.name))
+                 else
+                   h('span.os-latest-dot')
+                 end
+          h('li.os-latest-item', [lead, h('span.os-latest-text', emphasize_money(message))])
+        end)
+      end
+
+      # Money amounts in bold, e.g. "runs a 4 train for ¥110".
+      def emphasize_money(message)
+        message.split(/(¥[\d,]+)/).reject(&:empty?).map do |part|
+          part.start_with?('¥') ? h('strong.os-num', part) : part
+        end
       end
 
       # The map is drawn in absolute pixels (the tile selector is positioned in
@@ -120,8 +171,9 @@ module View
         ])
       end
 
-      def details(title, body)
-        h('details.os-details', [h(:summary, title), h('div.os-details-body', body)])
+      def details(title, body, id = nil)
+        props = id ? { attrs: { id: id } } : {}
+        h('details.os-details', props, [h(:summary, title), h('div.os-details-body', body)])
       end
 
       def market_heading

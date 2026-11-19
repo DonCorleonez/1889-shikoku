@@ -43,12 +43,31 @@ module View
       #shikoku-one-screen .os-round-projected { font: 600 10px/1 var(--sk-sans); letter-spacing: .06em; text-transform: uppercase; color: var(--sk-muted); }
       #shikoku-one-screen .os-round-indicator { font-weight: 900; }
 
+      /* top band: players side by side + latest moves */
+      #shikoku-one-screen .os-band { display: flex; flex-wrap: wrap; gap: 16px; align-items: stretch; }
+      #shikoku-one-screen .os-players-card { flex: 999 1 640px; }
+      #shikoku-one-screen .os-latest-card { flex: 1 1 360px; max-width: 520px; }
+      #shikoku-one-screen .os-players-card .os-players { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; }
+      #shikoku-one-screen .os-card-link { font: 600 13px/1 var(--sk-sans); color: var(--sk-accent); text-decoration: none; }
+      #shikoku-one-screen .os-card-link:hover { text-decoration: underline; }
+      #shikoku-one-screen .os-latest { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; }
+      #shikoku-one-screen .os-latest-item { display: flex; align-items: flex-start; gap: 10px; padding: 7px 0; border-top: 1px solid var(--sk-divider); font: 500 13px/1.45 var(--sk-sans); color: var(--sk-ink); }
+      #shikoku-one-screen .os-latest-item:first-child { border-top: 0; }
+      #shikoku-one-screen .os-latest-item:first-child .os-latest-text { font-weight: 600; }
+      #shikoku-one-screen .os-latest-item .os-chip, #shikoku-one-screen .os-latest-item .os-avatar { margin-top: 1px; }
+      #shikoku-one-screen .os-latest-text { min-width: 0; overflow-wrap: anywhere; }
+      #shikoku-one-screen .os-latest-text strong { font-weight: 700; }
+      #shikoku-one-screen .os-latest-round { padding: 8px 0 4px; font: 700 11px/1.2 var(--sk-sans); letter-spacing: .06em; text-transform: uppercase; color: var(--sk-muted); }
+      #shikoku-one-screen .os-latest-dot { width: 22px; height: 20px; flex: none; display: inline-flex; align-items: center; justify-content: center; }
+      #shikoku-one-screen .os-latest-dot::before { content: ''; width: 6px; height: 6px; border-radius: 999px; background: var(--sk-line-2); }
+      #shikoku-one-screen .os-avatar--xs { width: 22px; height: 20px; border-radius: 6px; font-size: 9px; }
+
       /* layout */
       #shikoku-one-screen .os-workspace { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start; }
       #shikoku-one-screen .os-col { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
       #shikoku-one-screen .os-col-left { flex: 1 1 290px; max-width: 360px; }
       #shikoku-one-screen .os-col-center { flex: 999 1 520px; }
-      #shikoku-one-screen .os-col-right { flex: 1 1 320px; max-width: 400px; }
+      #shikoku-one-screen .os-col-right { flex: 1 1 320px; max-width: 400px; position: sticky; top: 12px; }
       #shikoku-one-screen .os-row { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start; }
       #shikoku-one-screen .os-market-card { flex: 999 1 420px; }
       #shikoku-one-screen .os-trains-card { flex: 1 1 230px; }
@@ -132,6 +151,19 @@ module View
       #shikoku-one-screen .os-map > div { max-width: none; margin: auto; }
 
       #shikoku-one-screen #map_controls { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px; }
+
+      /* flat board: softer flat tile colours and a thin, even hex grid.
+         Hexes are <g fill=... stroke="black"> groups; CSS beats SVG presentation
+         attributes, and the selected hex (stroke-width="5") keeps its outline. */
+      #shikoku-one-screen svg#map g[fill="#EAE0C8"] { fill: #F2EEE3; }
+      #shikoku-one-screen svg#map g[fill="#fde900"] { fill: #F5D547; }
+      #shikoku-one-screen svg#map g[fill="#71bf44"] { fill: #7CC283; }
+      #shikoku-one-screen svg#map g[fill="#cb7745"] { fill: #C99067; }
+      #shikoku-one-screen svg#map g[fill="#bcbdc0"] { fill: #C8CDD4; }
+      #shikoku-one-screen svg#map g[fill="#ec232a"] { fill: #DE5A50; }
+      #shikoku-one-screen svg#map #map-hexes > g[stroke="black"]:not([stroke-width]) { stroke: #7F8A99; stroke-width: 1.5; }
+      #shikoku-one-screen svg#map #map-hexes > g[stroke="black"]:not([stroke-width]) > polygon:first-of-type { stroke-linejoin: round; }
+      #shikoku-one-screen svg#map text { font-family: var(--sk-sans); }
       #shikoku-one-screen #map_zoom { padding: 8px 8px 0; }
 
       /* market */
@@ -231,6 +263,8 @@ module View
 
       @media (max-width: 760px) {
         #shikoku-one-screen .os-col-left, #shikoku-one-screen .os-col-right { max-width: none; }
+        #shikoku-one-screen .os-col-right { position: static; }
+        #shikoku-one-screen .os-latest-card { max-width: none; }
         #shikoku-one-screen .os-bank { margin-left: 0; width: 100%; }
       }
     CSS

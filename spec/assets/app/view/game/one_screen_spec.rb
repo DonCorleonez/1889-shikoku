@@ -108,7 +108,7 @@ module View
         html = render_game(fixture, 0)
         expect(html).to include('id="shikoku-one-screen"', 'ISR 1', 'Phase 2',
                                 'Players', 'Corporations', 'Shikoku', 'Current action',
-                                'Tile manifest', 'Game log', 'Takamatsu E-Railroad')
+                                'Tile manifest', 'Latest moves', 'Full game log', 'Takamatsu E-Railroad')
         expect(html).to include('os-round--current')
       end
 
@@ -122,6 +122,7 @@ module View
         expect(html).to include('OR 1.1 of 1', 'Lay/Upgrade Track', 'os-corp--active', 'Operating')
         expect(html).to include('os-step--now', 'os-round--complete')
         expect(html).to include('os-sharebar', 'aria-label="Shares: ')
+        expect(html).to include('os-latest-item', 'os-players-card')
       end
 
       it 'renders a finished game' do

@@ -36,8 +36,10 @@ module View
       return @sk_theme if @sk_theme
 
       # server-side rendering has a stub document without documentElement
-      theme = `(typeof document !== 'undefined' && document.documentElement &&
-                document.documentElement.getAttribute('data-theme')) || 'light'`
+      theme = %x{
+        (typeof document !== 'undefined' && document.documentElement &&
+         document.documentElement.getAttribute('data-theme')) || 'light'
+      }
       theme == 'dark' ? 'dark' : 'light'
     end
 

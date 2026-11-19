@@ -111,7 +111,8 @@ jobs:
           for tag in "$ref" "sha-${GITHUB_SHA::7}"; do
             img="ghcr.io/$owner/1889-shikoku-$svc:$tag-arm64"
             docker tag "shikoku_$svc" "$img"
-            docker push "$img"
+            # ghcr.io sometimes answers "unknown blob" mid-push; retry
+            for attempt in 1 2 3; do docker push "$img" && break; [ "$attempt" = 3 ] && exit 1; sleep 10; done
             echo "pushed $img" >> "$GITHUB_STEP_SUMMARY"
           done
         done
